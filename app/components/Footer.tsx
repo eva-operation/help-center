@@ -13,20 +13,19 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
                     {/* Brand Column */}
                     <div className="col-span-1 md:col-span-1">
-                        <div className="flex items-center gap-2 mb-4">
-                            <img
-                                src="https://lh3.googleusercontent.com/sitesv/APaQ0SQa24_mE_XWc26sJX41irqiNYgQAAdB_I_Y5PlAuL-FQ_RjbYuQh-y8xxwHJdobxO422vzzKw25nNjUPTI9oFMTCgaXwZT5drB-mQhnoC0hjug9j4wWwTlyARtGlechiAq9BFps1r6fO5YDVDjz10IQQzFeWke6qGSoFjqX5bPsN29bruqtxy9FxsC-1lYV7vu0oHMjNUgbxjQ1zESb_xy6Bx5_cKhQFO9uRb0=w1280"
-                                alt="Logo"
-                                className="w-8 h-8 object-contain"
-                            />
-                            <span className="text-xl font-bold bg-gradient-to-r from-[var(--brand-purple)] to-[var(--brand-blue)] bg-clip-text text-transparent italic">
-                                Eva Operation
-                            </span>
+                        <div className="mb-4">
+                            <a href="https://eva.guru" target="_blank" rel="noopener noreferrer" className="inline-block hover:opacity-80 transition-opacity">
+                                <img
+                                    src="https://lh3.googleusercontent.com/sitesv/APaQ0SSIWw7pyR6RzZBhrcCxN5xffcTXeHhRj3vbl2UbbL-AVVlpmJPBswVzno6tK8FxyoFg0WtZsOJSST7zyn0PcngGItJHrzPevW4LDWCSoHdLGPondTnbT2wp9Y0MB7rVKGNWcPRLlH6n6uGlc7e9FQcsOUKYBsiO1Pmd-RM8OGq9v79sTN46Rhp-xwTJVQdHd9LItNlXKKGxlYI-EjxXByYQzhBxh9NNNsKyIB4=w1280"
+                                    alt="Eva Gru Logo"
+                                    className="w-32 h-auto object-contain"
+                                />
+                            </a>
                         </div>
                         <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
                             {language === 'tr'
-                                ? "Eva Operation sistemleri için kapsamlı dokümantasyon ve yardım merkezi."
-                                : "Comprehensive documentation and help center for Eva Operation systems."}
+                                ? "Eva Gru sistemleri için kapsamlı dokümantasyon ve yardım merkezi."
+                                : "Comprehensive documentation and help center for Eva Gru systems."}
                         </p>
                     </div>
 
@@ -40,11 +39,6 @@ export default function Footer() {
                                 <Link href="/" className="text-sm text-[var(--text-secondary)] hover:text-[var(--brand-blue)] transition-colors">
                                     {language === 'tr' ? 'Yardım Merkezi' : 'Help Center'}
                                 </Link>
-                            </li>
-                            <li>
-                                <a href="https://github.com/eva-operation" target="_blank" rel="noopener noreferrer" className="text-sm text-[var(--text-secondary)] hover:text-[var(--brand-blue)] transition-colors">
-                                    GitHub
-                                </a>
                             </li>
                         </ul>
                     </div>
@@ -98,7 +92,7 @@ export default function Footer() {
 
                 <div className="pt-8 border-t border-[var(--neutral-border)] flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-xs text-[var(--text-muted)] text-center md:text-left">
-                        © {currentYear} Eva Operation Group. {language === 'tr' ? 'Tüm hakları saklıdır.' : 'All rights reserved.'}
+                        © {currentYear} Eva Gru. {language === 'tr' ? 'Tüm hakları saklıdır.' : 'All rights reserved.'}
                     </p>
                     <div className="flex gap-6 text-xs text-[var(--text-muted)]">
                         <Link href="/privacy" className="hover:text-[var(--brand-blue)] transition-colors">
