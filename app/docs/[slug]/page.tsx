@@ -15,6 +15,8 @@ import { getModuleById } from "../../../lib/modules";
 import { getTopicById } from "../../../lib/topics";
 import { getAppById } from "../../../lib/apps";
 
+export const dynamic = 'force-dynamic';
+
 const normalize = (s: string) =>
     (s ?? "")
         .trim()
@@ -31,11 +33,6 @@ type PageProps = {
     params: Promise<{ slug: string }>;
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
-
-export async function generateStaticParams() {
-    const articles = await getCachedArticles();
-    return articles.map((a) => ({ slug: a.slug }));
-}
 
 export async function generateMetadata({ params }: PageProps) {
     const { slug } = await params;
