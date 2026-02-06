@@ -13,14 +13,18 @@ export const metadata = {
 };
 
 import { LanguageProvider } from "../lib/i18n";
+import Footer from "./components/Footer";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en" className={poppins.className}>
-            <body>
+            <body className="flex flex-col min-h-screen">
                 <LanguageProvider>
                     <Header />
-                    {children}
+                    <main className="flex-grow">
+                        {children}
+                    </main>
+                    <Footer />
                 </LanguageProvider>
             </body>
         </html>

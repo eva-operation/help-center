@@ -290,7 +290,7 @@ export function HelpCenterClient({ apps }: Props) {
     }, [selectedModule?.id, language]); // Use ID and language for stability
 
     return (
-        <div className="min-h-screen">
+        <div className="h-full">
             {/* Header */}
             <header className="bg-[var(--bg-secondary)] border-b border-[var(--neutral-border)]">
                 <div className="mx-auto max-w-7xl px-6 py-8">
@@ -522,7 +522,7 @@ export function HelpCenterClient({ apps }: Props) {
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                                 </svg>
                                             )}
-                                            <span className="truncate">{getName(module)}</span>
+                                            <span className="whitespace-normal leading-tight">{getName(module)}</span>
                                         </button>
                                     ))
                                 )}
