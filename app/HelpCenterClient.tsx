@@ -487,7 +487,7 @@ export function HelpCenterClient({ apps }: Props) {
                             </div>
 
                             {/* Old Help Site Redirect */}
-                            <div className="mt-12 text-center animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
+                            <div className="mt-12 mb-20 text-center animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
                                 <a
                                     href="https://help.eva.guru/"
                                     target="_blank"
