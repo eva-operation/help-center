@@ -4,8 +4,8 @@ export const en = {
         signUp: "Sign up"
     },
     home: {
-        heroTitle: "What would you like to explore today?",
-        searchPlaceholder: "Search by topic or keyword...",
+        heroTitle: "How can we help you?",
+        searchPlaceholder: "I want to...",
         searching: "Searching...",
         searchInstructions: "Use ↑↓ arrows to navigate, Enter to select |",
         viewFullResults: "View full results",

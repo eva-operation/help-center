@@ -4,8 +4,8 @@ export const tr = {
         signUp: "Kayıt ol"
     },
     home: {
-        heroTitle: "Bugün ne keşfetmek istersiniz?",
-        searchPlaceholder: "Konu veya anahtar kelimeye göre ara...",
+        heroTitle: "Size nasıl yardımcı olabiliriz?",
+        searchPlaceholder: "Yapmak istediğim...",
         searching: "Aranıyor...",
         searchInstructions: "Gezinmek için ↑↓ oklarını kullanın, seçmek için Enter |",
         viewFullResults: "Tüm sonuçları görüntüle",
