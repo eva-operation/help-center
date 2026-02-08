@@ -9,8 +9,8 @@ export const tr = {
         searching: "Aranıyor...",
         searchInstructions: "Gezinmek için ↑↓ oklarını kullanın, seçmek için Enter |",
         viewFullResults: "Tüm sonuçları görüntüle",
-        breadcrumbHome: "Ana Sayfa",
-        sidebarTitle: "Konuya göre ara",
+        breadcrumbHome: "Intelligence Hub",
+        sidebarTitle: "Konular",
         loading: "Yükleniyor...",
         noModules: "Modül bulunamadı",
         loadingArticles: "Makaleler yükleniyor...",
@@ -19,12 +19,12 @@ export const tr = {
         noTopicsInModule: "Bu modül için konu bulunamadı",
         allArticlesInModule: "Tüm {module} Makaleleri",
         noArticlesInModule: "Bu modül için makale bulunamadı",
-        moduleDescriptionFallback: "{app} ile işinizi büyütmek için kılavuzları, kursları ve materyalleri keşfedin."
+        moduleDescriptionFallback: "{app} ile işinizi güçlendirmek için kılavuzları ve materyalleri keşfedin."
     },
     search: {
-        backToHome: "Ana Sayfaya Dön",
+        backToHome: "Intelligence Hub'a Dön",
         title: "Arama Sonuçları",
-        placeholder: "Makalelerde ara...",
+        placeholder: "Intelligence Hub'da ara...",
         searching: "Aranıyor...",
         noResults: '"{query}" için sonuç bulunamadı',
         enterQuery: "Sonuçları görmek için bir arama sorgusu girin",

@@ -294,29 +294,12 @@ export function HelpCenterClient({ apps }: Props) {
             {/* Header */}
             <header className="bg-[var(--bg-secondary)] border-b border-[var(--neutral-border)]">
                 <div className="mx-auto max-w-7xl px-6 py-8">
-                    <div className="flex justify-center mb-4">
-                        {!logoError ? (
-                            <img
-                                src="https://lh3.googleusercontent.com/sitesv/APaQ0SQa24_mE_XWc26sJX41irqiNYgQAAdB_I_Y5PlAuL-FQ_RjbYuQh-y8xxwHJdobxO422vzzKw25nNjUPTI9oFMTCgaXwZT5drB-mQhnoC0hjug9j4wWwTlyARtGlechiAq9BFps1r6fO5YDVDjz10IQQzFeWke6qGSoFjqX5bPsN29bruqtxy9FxsC-1lYV7vu0oHMjNUgbxjQ1zESb_xy6Bx5_cKhQFO9uRb0=w1280"
-                                alt="Logo"
-                                className="w-10 h-10 object-contain"
-                                onError={() => setLogoError(true)}
-                            />
-                        ) : (
-                            <svg viewBox="0 0 800 200" className="w-48 h-auto object-contain" xmlns="http://www.w3.org/2000/svg">
-                                <defs>
-                                    <linearGradient id="g1" x1="0" x2="1">
-                                        <stop offset="0%" stopColor="#6b21a8" />
-                                        <stop offset="50%" stopColor="#00d4ff" />
-                                        <stop offset="100%" stopColor="#f3a7c1" />
-                                    </linearGradient>
-                                </defs>
-                                <g fill="url(#g1)">
-                                    <path d="M60 100a40 40 0 1 1 0-0z" />
-                                </g>
-                                <text x="320" y="125" fontFamily="Poppins, Arial" fontSize="64" fill="currentColor">Eva</text>
-                            </svg>
-                        )}
+                    <div className="flex justify-center mb-6">
+                        <img
+                            src="https://lh3.googleusercontent.com/sitesv/APaQ0SRhXnx16jGZldvt9sB34h4aJER_QOE0ay3FUZOxjYOtFITRzNf1GDenLdlAPtHaDo8GEtfm1gNqxxomPCHIP0PLwCnKxUuecT42hU1lUGfN17rpcnPfHGZapspEGF9Uk2ljgjYVt9qhVjeTfC27rSEpD0r8j9i699YmIZzb94iL_n08_7uYt0KdyDdEdIjEZw_vrUuRdrZC4fAQ0sufkR_4nsiXGI7RxsUBUSg=w1280"
+                            alt="Logo"
+                            className="h-10 w-auto object-contain"
+                        />
                     </div>
                     <h1 className="text-4xl font-bold text-center">
                         {t.home.heroTitle}

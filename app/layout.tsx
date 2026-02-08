@@ -8,8 +8,8 @@ const poppins = Poppins({
 });
 
 export const metadata = {
-    title: "Help Center",
-    description: "Public help documentation"
+    title: "Eva Intelligence Hub",
+    description: "Documentation and resources for Eva E-Commerce Intelligence"
 };
 
 import { LanguageProvider } from "../lib/i18n";
@@ -18,6 +18,9 @@ import Footer from "./components/Footer";
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en" className={poppins.className}>
+            <head>
+                <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+            </head>
             <body className="flex flex-col min-h-screen">
                 <LanguageProvider>
                     <Header />

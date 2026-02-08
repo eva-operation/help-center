@@ -9,8 +9,8 @@ export const en = {
         searching: "Searching...",
         searchInstructions: "Use ↑↓ arrows to navigate, Enter to select |",
         viewFullResults: "View full results",
-        breadcrumbHome: "Home",
-        sidebarTitle: "Search by topic",
+        breadcrumbHome: "Intelligence Hub",
+        sidebarTitle: "Browse by topic",
         loading: "Loading...",
         noModules: "No modules found",
         loadingArticles: "Loading articles...",
@@ -19,12 +19,12 @@ export const en = {
         noTopicsInModule: "No topics available for this module",
         allArticlesInModule: "All {module} Articles",
         noArticlesInModule: "No articles found for this module",
-        moduleDescriptionFallback: "Discover guides, courses, and materials to grow your business with {app}."
+        moduleDescriptionFallback: "Discover guides and materials to empower your business with {app}."
     },
     search: {
-        backToHome: "Back to Home",
+        backToHome: "Back to Intelligence Hub",
         title: "Search Results",
-        placeholder: "Search articles...",
+        placeholder: "Search Intelligence Hub...",
         searching: "Searching...",
         noResults: 'No results found for "{query}"',
         enterQuery: "Enter a search query to see results",
