@@ -19,7 +19,12 @@ export const zh = {
         noTopicsInModule: "该模块下没有可用主题",
         allArticlesInModule: "所有 {module} 文章",
         noArticlesInModule: "该模块下未找到文章",
-        moduleDescriptionFallback: "探索通过 {app} 发展业务的指南、课程和材料。"
+        moduleDescriptionFallback: "探索通过 {app} 发展业务的指南、课程和材料。",
+        waysToGetStarted: "入门方法",
+        exploreApp: "探索 {app}",
+        startGuide: "开始指南",
+        knowledgeModules: "知识模块",
+        exploreTopics: "探索主题"
     },
     search: {
         backToHome: "返回首页",

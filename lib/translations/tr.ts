@@ -19,7 +19,12 @@ export const tr = {
         noTopicsInModule: "Bu modül için konu bulunamadı",
         allArticlesInModule: "Tüm {module} Makaleleri",
         noArticlesInModule: "Bu modül için makale bulunamadı",
-        moduleDescriptionFallback: "{app} ile işinizi güçlendirmek için kılavuzları ve materyalleri keşfedin."
+        moduleDescriptionFallback: "{app} ile işinizi güçlendirmek için kılavuzları ve materyalleri keşfedin.",
+        waysToGetStarted: "Başlamanın yolları",
+        exploreApp: "{app} Keşfet",
+        startGuide: "Rehbere Başla",
+        knowledgeModules: "Bilgi Modülleri",
+        exploreTopics: "Konuları Keşfet"
     },
     search: {
         backToHome: "Intelligence Hub'a Dön",

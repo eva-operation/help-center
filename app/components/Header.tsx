@@ -20,16 +20,16 @@ export default function Header() {
     return (
         <header className="sticky top-0 z-50 w-full border-b border-[var(--neutral-border)] bg-[var(--bg-secondary)]">
             <div className="mx-auto max-w-7xl px-6 py-3 flex items-center justify-between">
-                <Link href="/" className="flex items-center gap-3 group">
+                <a href="https://eva.guru" className="flex items-center gap-3 group">
                     <img
-                        src="https://lh3.googleusercontent.com/sitesv/APaQ0STTZwJ5tOckTkpsTavFG62vAmZTD-8wSetQZ6UZClyqMfupnTzrX_rYJ4a_AW2HLVkuwQPNKSTMXPrdXIR0GUkNJteRzXezvwXLhtKq_Iq7a9tNidOUdE70cmETJU2Zhg9c3liRkpt5Ei3ykgHiuc0kEhjzqnf6ZcN8PgZPpxJzD4OhPQFU-GbudAO5EUeKcAwHqIqv16_0r1w__fwnJIP2EsdPRM-9ZXhYl7Y=w1280"
+                        src="https://lh3.googleusercontent.com/sitesv/APaQ0STn1U71ADo5WKknsUpOfU5cSwv_X4CdLcTYG-mnvIUZyvlL5LaQ0WP0ZkWJqKIxO7PQqp_jk0YOWvZpIPnOMIwvu2a3dEsnBeIenS3Ec8A2b-lx9Nds9O1EzrFiEsqyzG7zVjTXBn6qJzgGs6g6AZilf2J4cCbK9qgIspD2E3mXXOx3qhhm-ievbChP3D7wrdz740XY99oSUIGPoq4rl_OxehIBypclr3vCirc=w1280"
                         alt="Eva Logo"
                         className="h-8 w-auto object-contain transition-transform group-hover:scale-105"
                     />
                     <span className="text-xl font-bold tracking-tight text-[var(--text-primary)]">
                         <span className="text-[var(--brand-blue)]">E-Commerce Intelligence</span>
                     </span>
-                </Link>
+                </a>
 
                 <div className="flex items-center gap-4">
                     <div className="relative">

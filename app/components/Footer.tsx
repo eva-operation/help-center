@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useLanguage } from "../../lib/i18n";
 
 export default function Footer() {
-    const { language, t } = useLanguage();
+    const { language, setLanguage, t } = useLanguage();
     const currentYear = new Date().getFullYear();
 
     return (
@@ -14,16 +14,16 @@ export default function Footer() {
                     {/* Brand Column */}
                     <div className="col-span-1 md:col-span-1">
                         <div className="mb-6">
-                            <Link href="/" className="flex items-center gap-3 group">
+                            <a href="https://eva.guru" className="flex items-center gap-3 group">
                                 <img
-                                    src="https://lh3.googleusercontent.com/sitesv/APaQ0STTZwJ5tOckTkpsTavFG62vAmZTD-8wSetQZ6UZClyqMfupnTzrX_rYJ4a_AW2HLVkuwQPNKSTMXPrdXIR0GUkNJteRzXezvwXLhtKq_Iq7a9tNidOUdE70cmETJU2Zhg9c3liRkpt5Ei3ykgHiuc0kEhjzqnf6ZcN8PgZPpxJzD4OhPQFU-GbudAO5EUeKcAwHqIqv16_0r1w__fwnJIP2EsdPRM-9ZXhYl7Y=w1280"
+                                    src="https://lh3.googleusercontent.com/sitesv/APaQ0STn1U71ADo5WKknsUpOfU5cSwv_X4CdLcTYG-mnvIUZyvlL5LaQ0WP0ZkWJqKIxO7PQqp_jk0YOWvZpIPnOMIwvu2a3dEsnBeIenS3Ec8A2b-lx9Nds9O1EzrFiEsqyzG7zVjTXBn6qJzgGs6g6AZilf2J4cCbK9qgIspD2E3mXXOx3qhhm-ievbChP3D7wrdz740XY99oSUIGPoq4rl_OxehIBypclr3vCirc=w1280"
                                     alt="Eva Logo"
                                     className="h-7 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity"
                                 />
                                 <span className="text-lg font-bold tracking-tight text-[var(--text-primary)]">
                                     <span className="text-[var(--brand-blue)]">Intelligence</span>
                                 </span>
-                            </Link>
+                            </a>
                         </div>
                         <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
                             {language === 'tr'
@@ -72,20 +72,20 @@ export default function Footer() {
                         </h4>
                         <div className="flex gap-4">
                             <button
-                                className={`text-sm ${language === 'tr' ? 'text-[var(--brand-blue)] font-medium' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors'}`}
-                                onClick={() => { localStorage.setItem('lang', 'tr'); window.location.reload(); }}
+                                className={`text-sm ${language === 'tr' ? 'text-[var(--brand-blue)] font-bold' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors'}`}
+                                onClick={() => setLanguage('tr')}
                             >
                                 TR
                             </button>
                             <button
-                                className={`text-sm ${language === 'en' ? 'text-[var(--brand-blue)] font-medium' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors'}`}
-                                onClick={() => { localStorage.setItem('lang', 'en'); window.location.reload(); }}
+                                className={`text-sm ${language === 'en' ? 'text-[var(--brand-blue)] font-bold' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors'}`}
+                                onClick={() => setLanguage('en')}
                             >
                                 EN
                             </button>
                             <button
-                                className={`text-sm ${language === 'zh' ? 'text-[var(--brand-blue)] font-medium' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors'}`}
-                                onClick={() => { localStorage.setItem('lang', 'zh'); window.location.reload(); }}
+                                className={`text-sm ${language === 'zh' ? 'text-[var(--brand-blue)] font-bold' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors'}`}
+                                onClick={() => setLanguage('zh')}
                             >
                                 ZH
                             </button>

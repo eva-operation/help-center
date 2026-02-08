@@ -19,7 +19,12 @@ export const en = {
         noTopicsInModule: "No topics available for this module",
         allArticlesInModule: "All {module} Articles",
         noArticlesInModule: "No articles found for this module",
-        moduleDescriptionFallback: "Discover guides and materials to empower your business with {app}."
+        moduleDescriptionFallback: "Discover guides and materials to empower your business with {app}.",
+        waysToGetStarted: "Ways to get started",
+        exploreApp: "Explore {app}",
+        startGuide: "Start Guide",
+        knowledgeModules: "Knowledge Modules",
+        exploreTopics: "Explore Topics"
     },
     search: {
         backToHome: "Back to Intelligence Hub",
