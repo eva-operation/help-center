@@ -24,9 +24,9 @@ export default function Header() {
                     <img
                         src="https://lh3.googleusercontent.com/sitesv/APaQ0STn1U71ADo5WKknsUpOfU5cSwv_X4CdLcTYG-mnvIUZyvlL5LaQ0WP0ZkWJqKIxO7PQqp_jk0YOWvZpIPnOMIwvu2a3dEsnBeIenS3Ec8A2b-lx9Nds9O1EzrFiEsqyzG7zVjTXBn6qJzgGs6g6AZilf2J4cCbK9qgIspD2E3mXXOx3qhhm-ievbChP3D7wrdz740XY99oSUIGPoq4rl_OxehIBypclr3vCirc=w1280"
                         alt="Eva Logo"
-                        className="h-8 w-auto object-contain transition-transform group-hover:scale-105"
+                        className="h-8 w-auto object-contain transition-transform group-hover:scale-105 flex-shrink-0"
                     />
-                    <span className="text-xl font-bold tracking-tight text-[var(--text-primary)]">
+                    <span className="text-xl font-bold tracking-tight text-[var(--text-primary)] break-words max-w-[200px] sm:max-w-none hidden sm:inline">
                         <span className="text-[var(--brand-blue)]">E-Commerce Intelligence</span>
                     </span>
                 </a>

@@ -366,6 +366,7 @@ export function HelpCenterClient({ apps }: Props) {
                             <img
                                 src={p.logoUrl}
                                 alt=""
+                                crossOrigin="anonymous"
                                 className="w-full h-auto"
                             />
                         </div>
