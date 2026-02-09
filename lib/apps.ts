@@ -12,14 +12,34 @@ async function resolveDatabaseIdByName(dbName: string): Promise<string> {
 
 export const NOTION_APPS_DB_ID = process.env.NOTION_APPS_DB_ID || "";
 
-export async function listApps(): Promise<HelpCenterApp[]> {
+export async function listApps(visibility: string = "Public"): Promise<HelpCenterApp[]> {
     if (!NOTION_APPS_DB_ID) throw new Error("NOTION_APPS_DB_ID is missing");
 
-    const res = await notion.databases.query({
-        database_id: NOTION_APPS_DB_ID,
-        filter: { property: "Status", select: { equals: "Active" } },
-        sorts: [{ property: "Order", direction: "ascending" }],
-    });
+    let res;
+    try {
+        res = await notion.databases.query({
+            database_id: NOTION_APPS_DB_ID,
+            filter: {
+                and: [
+                    { property: "Status", select: { equals: "Active" } },
+                    { property: "Visibility", select: { equals: visibility } },
+                ]
+            },
+            sorts: [{ property: "Order", direction: "ascending" }],
+        });
+    } catch (error: any) {
+        // If Visibility property is missing in Notion, fallback to just Status filter
+        if (error.code === 'object_not_found' || error.message.includes('Visibility')) {
+            console.warn(`Visibility property missing in Apps DB (${NOTION_APPS_DB_ID}). Showing all Active apps.`);
+            res = await notion.databases.query({
+                database_id: NOTION_APPS_DB_ID,
+                filter: { property: "Status", select: { equals: "Active" } },
+                sorts: [{ property: "Order", direction: "ascending" }],
+            });
+        } else {
+            throw error;
+        }
+    }
 
     return res.results.map((page: any) => {
         const p = page.properties || {};
@@ -33,6 +53,7 @@ export async function listApps(): Promise<HelpCenterApp[]> {
             iconUrl: getFileUrl(p.Icon) || getIconUrl(page.icon),
             order: Number(getPropText(p.Order) || 0),
             status: String(getPropText(p.Status) || "Active"),
+            visibility: String(getPropText(p.Visibility) || "Public"),
         } satisfies HelpCenterApp;
     });
 }

@@ -55,7 +55,11 @@ function getRequiredProps(page: any) {
     };
 }
 
-export async function listPublishedArticles(): Promise<Article[]> {
+function getVisibilityFilter(visibility: string) {
+    return { property: "Visibility", select: { equals: visibility } };
+}
+
+export async function listPublishedArticles(visibility: string = "Public"): Promise<Article[]> {
     if (!NOTION_ARTICLES_DB_ID) throw new Error("NOTION_ARTICLES_DB_ID is missing");
 
     const res = await notion.databases.query({
@@ -63,7 +67,7 @@ export async function listPublishedArticles(): Promise<Article[]> {
         filter: {
             and: [
                 { property: "Status", select: { equals: "Published" } },
-                { property: "Visibility", select: { equals: "Public" } },
+                getVisibilityFilter(visibility),
             ],
         },
         // NOTE: Do not use sorts unless you're 100% sure the property exists in the DB.
@@ -90,7 +94,7 @@ export async function listPublishedArticles(): Promise<Article[]> {
         .filter((a) => a.slug && a.title);
 }
 
-export async function getArticleBySlug(slug: string | undefined | null): Promise<Article | null> {
+export async function getArticleBySlug(slug: string | undefined | null, visibility: string = "Public"): Promise<Article | null> {
     if (!NOTION_ARTICLES_DB_ID) throw new Error("NOTION_ARTICLES_DB_ID is missing");
 
     const safeSlug = (slug ?? "").trim();
@@ -102,7 +106,7 @@ export async function getArticleBySlug(slug: string | undefined | null): Promise
             and: [
                 { property: "Slug", rich_text: { equals: safeSlug } },
                 { property: "Status", select: { equals: "Published" } },
-                { property: "Visibility", select: { equals: "Public" } },
+                getVisibilityFilter(visibility),
             ],
         },
     });

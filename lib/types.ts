@@ -8,6 +8,7 @@ export type HelpCenterApp = {
     iconUrl?: string;
     order: number;
     status: "Active" | "Hidden" | string;
+    visibility?: "Public" | "Internal Only" | string;
 };
 
 export type HelpCenterModule = {
@@ -22,6 +23,7 @@ export type HelpCenterModule = {
     iconUrl?: string;
     order: number;
     status: "Active" | "Hidden" | string;
+    visibility?: "Public" | "Internal Only" | string;
     appIds: string[]; // relation backref may exist
 };
 
@@ -37,6 +39,7 @@ export type HelpCenterTopic = {
     iconUrl?: string;
     order: number;
     status: "Active" | "Hidden" | string;
+    visibility?: "Public" | "Internal Only" | string;
     appId: string; // limit 1
     moduleIds: string[];
 };

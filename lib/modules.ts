@@ -6,23 +6,46 @@ export const NOTION_MODULES_DB_ID = process.env.NOTION_MODULES_DB_ID || "";
 
 const REL_APPS_ON_MODULES = "Help Center Apps";
 
-export async function listModulesByAppId(appId: string): Promise<HelpCenterModule[]> {
+export async function listModulesByAppId(appId: string, visibility: string = "Public"): Promise<HelpCenterModule[]> {
     if (!NOTION_MODULES_DB_ID) throw new Error("NOTION_MODULES_DB_ID is missing");
     if (!appId) return [];
 
-    const res = await notion.databases.query({
-        database_id: NOTION_MODULES_DB_ID,
-        filter: {
-            and: [
-                { property: "Status", select: { equals: "Active" } },
-                { property: REL_APPS_ON_MODULES, relation: { contains: appId } },
+    let res;
+    try {
+        res = await notion.databases.query({
+            database_id: NOTION_MODULES_DB_ID,
+            filter: {
+                and: [
+                    { property: "Status", select: { equals: "Active" } },
+                    { property: "Visibility", select: { equals: visibility } },
+                    { property: REL_APPS_ON_MODULES, relation: { contains: appId } },
+                ],
+            },
+            sorts: [
+                { property: "Order", direction: "ascending" },
+                { property: "Name", direction: "ascending" },
             ],
-        },
-        sorts: [
-            { property: "Order", direction: "ascending" },
-            { property: "Name", direction: "ascending" },
-        ],
-    });
+        });
+    } catch (error: any) {
+        if (error.message.includes('Visibility')) {
+            console.warn(`Visibility property missing in Modules DB (${NOTION_MODULES_DB_ID})`);
+            res = await notion.databases.query({
+                database_id: NOTION_MODULES_DB_ID,
+                filter: {
+                    and: [
+                        { property: "Status", select: { equals: "Active" } },
+                        { property: REL_APPS_ON_MODULES, relation: { contains: appId } },
+                    ],
+                },
+                sorts: [
+                    { property: "Order", direction: "ascending" },
+                    { property: "Name", direction: "ascending" },
+                ],
+            });
+        } else {
+            throw error;
+        }
+    }
 
     return res.results.map((page: any) => {
         const p = page.properties || {};
@@ -38,6 +61,7 @@ export async function listModulesByAppId(appId: string): Promise<HelpCenterModul
             iconUrl: getFileUrl(p.Icon) || getIconUrl(page.icon),
             order: Number(getPropText(p.Order) || 0),
             status: String(getPropText(p.Status) || "Active"),
+            visibility: String(getPropText(p.Visibility) || "Public"),
             appIds: getRelationIds(p[REL_APPS_ON_MODULES]),
         } satisfies HelpCenterModule;
     });

@@ -17,9 +17,12 @@ const isSvg = (url?: string) => {
 
 type Props = {
     apps: HelpCenterApp[];
+    isInternal?: boolean;
 };
 
-export function HelpCenterClient({ apps }: Props) {
+export function HelpCenterClient({ apps, isInternal = false }: Props) {
+    const visibility = isInternal ? "Internal Only" : "Public";
+    const baseUrl = isInternal ? "/internal" : "/";
     const [selectedApp, setSelectedApp] = useState<HelpCenterApp | null>(null);
     const [selectedModule, setSelectedModule] = useState<HelpCenterModule | null>(null);
     const [selectedTopic, setSelectedTopic] = useState<HelpCenterTopic | null>(null);
@@ -99,8 +102,9 @@ export function HelpCenterClient({ apps }: Props) {
     }, []);
 
     const [isInteracted, setIsInteracted] = useState(false);
-    const [exploreData, setExploreData] = useState<Record<string, { moduleKey: string, topics: HelpCenterTopic[] }>>({});
+    const [exploreData, setExploreData] = useState<Record<string, { moduleKey: string, topics: HelpCenterTopic[], modules?: HelpCenterModule[] }>>({});
     const [loadingExplore, setLoadingExplore] = useState(false);
+    const [internalContentData, setInternalContentData] = useState<Record<string, { moduleIds: Set<string>, topicIds: Set<string> }>>({});
 
     // Synchronize isInteracted with URL params
     useEffect(() => {
@@ -122,26 +126,56 @@ export function HelpCenterClient({ apps }: Props) {
 
     async function fetchExploreData() {
         setLoadingExplore(true);
-        const data: Record<string, { moduleKey: string, topics: HelpCenterTopic[] }> = {};
+        const data: Record<string, { moduleKey: string, topics: HelpCenterTopic[], modules?: HelpCenterModule[] }> = {};
+        const contentData: Record<string, { moduleIds: Set<string>, topicIds: Set<string> }> = {};
 
         try {
             await Promise.all(apps.map(async (app) => {
-                const modRes = await fetch(`/api/modules?appId=${app.id}`);
-                const modules: HelpCenterModule[] = await modRes.json();
+                let currentModules: HelpCenterModule[] = [];
+                let currentTopics: HelpCenterTopic[] = [];
+                let firstModuleKey = "";
 
-                if (Array.isArray(modules) && modules.length > 0) {
-                    const firstModule = modules[0];
-                    const topRes = await fetch(`/api/topics?appId=${app.id}&moduleId=${firstModule.id}`);
-                    const topics: HelpCenterTopic[] = await topRes.json();
+                // For internal view, we only want modules/topics that HAVE internal articles
+                if (isInternal) {
+                    const artRes = await fetch(`/api/articles?appId=${app.id}&visibility=${visibility}`);
+                    const articles: HelpCenterArticle[] = await artRes.json();
 
-                    if (Array.isArray(topics)) {
-                        data[app.id] = {
-                            moduleKey: firstModule.key,
-                            topics: topics.slice(0, 5) // Show top 5 topics
-                        };
+                    const mIds = new Set<string>();
+                    const tIds = new Set<string>();
+                    articles.forEach(a => {
+                        a.moduleIds?.forEach(id => mIds.add(id));
+                        a.topicIds?.forEach(id => tIds.add(id));
+                    });
+                    contentData[app.id] = { moduleIds: mIds, topicIds: tIds };
+
+                    // Fetch all mod/top to filter them
+                    const modRes = await fetch(`/api/modules?appId=${app.id}&visibility=${visibility}`);
+                    const allModules: HelpCenterModule[] = await modRes.json();
+                    currentModules = allModules.filter(m => mIds.has(m.id));
+
+                    if (currentModules.length > 0) {
+                        firstModuleKey = currentModules[0].key;
+                        const topRes = await fetch(`/api/topics?appId=${app.id}&moduleId=${currentModules[0].id}&visibility=${visibility}`);
+                        const allTopics: HelpCenterTopic[] = await topRes.json();
+                        currentTopics = allTopics.filter(t => tIds.has(t.id));
+                    }
+                } else {
+                    const modRes = await fetch(`/api/modules?appId=${app.id}&visibility=${visibility}`);
+                    currentModules = await modRes.json();
+                    if (currentModules.length > 0) {
+                        firstModuleKey = currentModules[0].key;
+                        const topRes = await fetch(`/api/topics?appId=${app.id}&moduleId=${currentModules[0].id}&visibility=${visibility}`);
+                        currentTopics = await topRes.json();
                     }
                 }
+
+                data[app.id] = {
+                    moduleKey: firstModuleKey,
+                    topics: Array.isArray(currentTopics) ? currentTopics.slice(0, 5) : [],
+                    modules: Array.isArray(currentModules) ? currentModules.slice(0, 5) : []
+                };
             }));
+            setInternalContentData(contentData);
             setExploreData(data);
         } catch (err) {
             console.error("Error fetching explore data:", err);
@@ -205,7 +239,7 @@ export function HelpCenterClient({ apps }: Props) {
             return;
         }
         setLoadingModules(true);
-        fetch(`/api/modules?appId=${selectedApp.id}`)
+        fetch(`/api/modules?appId=${selectedApp.id}&visibility=${visibility}`)
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data) && data.length > 0) {
@@ -215,14 +249,14 @@ export function HelpCenterClient({ apps }: Props) {
                     if (!moduleKey) {
                         const newParams = new URLSearchParams(searchParams.toString());
                         newParams.set("module", data[0].key);
-                        router.push(`/?${newParams.toString()}`, { scroll: false });
+                        router.push(`${baseUrl}?${newParams.toString()}`, { scroll: false });
                     }
                 } else {
                     setModules([]);
                 }
             })
             .finally(() => setLoadingModules(false));
-    }, [selectedApp?.id]);
+    }, [selectedApp?.id, visibility]);
 
     // Fetch topics when module is selected
     useEffect(() => {
@@ -231,13 +265,13 @@ export function HelpCenterClient({ apps }: Props) {
             return;
         }
         setLoadingTopics(true);
-        fetch(`/api/topics?appId=${selectedApp.id}&moduleId=${selectedModule.id}`)
+        fetch(`/api/topics?appId=${selectedApp.id}&moduleId=${selectedModule.id}&visibility=${visibility}`)
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) setTopics(data);
             })
             .finally(() => setLoadingTopics(false));
-    }, [selectedModule?.id, selectedApp?.id]);
+    }, [selectedModule?.id, selectedApp?.id, visibility]);
 
     // Fetch topic articles
     useEffect(() => {
@@ -246,13 +280,13 @@ export function HelpCenterClient({ apps }: Props) {
             return;
         }
         setLoadingArticles(true);
-        fetch(`/api/articles?topicId=${selectedTopic.id}&lang=${language}`)
+        fetch(`/api/articles?topicId=${selectedTopic.id}&lang=${language}&visibility=${visibility}`)
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) setTopicArticles(data);
             })
             .finally(() => setLoadingArticles(false));
-    }, [selectedTopic?.id, language]);
+    }, [selectedTopic?.id, language, visibility]);
 
     // Fetch all module articles
     useEffect(() => {
@@ -261,7 +295,7 @@ export function HelpCenterClient({ apps }: Props) {
             return;
         }
 
-        fetch(`/api/articles?moduleId=${selectedModule.id}&lang=${language}`)
+        fetch(`/api/articles?moduleId=${selectedModule.id}&lang=${language}&visibility=${visibility}`)
             .then((res) => res.json())
             .then((data) => {
                 if (Array.isArray(data)) {
@@ -271,7 +305,7 @@ export function HelpCenterClient({ apps }: Props) {
                 }
             })
             .catch(() => setAllModuleArticles([]));
-    }, [selectedModule?.id, language]);
+    }, [selectedModule?.id, language, visibility]);
 
     // Debounced search on input change
     useEffect(() => {
@@ -304,7 +338,7 @@ export function HelpCenterClient({ apps }: Props) {
         setSearching(true);
         setSearchResults([]);
         try {
-            const res = await fetch(`/api/search?query=${encodeURIComponent(q)}&lang=${language}`);
+            const res = await fetch(`/api/search?query=${encodeURIComponent(q)}&lang=${language}&visibility=${visibility}`);
             const data = await res.json();
             if (Array.isArray(data)) {
                 setSearchResults(data.slice(0, 20));
@@ -324,7 +358,8 @@ export function HelpCenterClient({ apps }: Props) {
         if (selectedApp) params.set("appId", selectedApp.id);
         if (selectedModule) params.set("moduleId", selectedModule.id);
         if (source === 'topic' && selectedTopic) params.set("topicId", selectedTopic.id);
-        return `/docs/${article.slug}?${params.toString()}`;
+        const urlPrefix = isInternal ? "/internal" : "";
+        return `${urlPrefix}/docs/${article.slug}?${params.toString()}`;
     };
 
     return (
@@ -409,7 +444,8 @@ export function HelpCenterClient({ apps }: Props) {
                                             setSelectedResultIndex(prev => prev > 0 ? prev - 1 : -1);
                                         } else if (e.key === "Enter" && selectedResultIndex >= 0) {
                                             e.preventDefault();
-                                            window.location.href = `/docs/${searchResults[selectedResultIndex].slug}`;
+                                            const urlPrefix = isInternal ? "/internal" : "";
+                                            window.location.href = `${urlPrefix}/docs/${searchResults[selectedResultIndex].slug}`;
                                         }
                                     }}
                                     placeholder={t.home.searchPlaceholder}
@@ -453,47 +489,64 @@ export function HelpCenterClient({ apps }: Props) {
                         <div className="mt-20 animate-in fade-in slide-in-from-bottom-12 duration-1000">
                             <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-8 text-center opacity-60">{t.home.waysToGetStarted}</h2>
                             <div className="flex flex-wrap justify-center gap-8">
-                                {apps.map(app => (
-                                    <div key={app.id} className="group relative w-full sm:w-[380px] rounded-3xl border border-[var(--neutral-border)] bg-[var(--bg-card)] p-8 hover:shadow-[0_30px_60px_rgba(0,0,0,0.12)] hover:border-[var(--brand-blue)] hover:-translate-y-2 transition-all duration-500 text-center flex flex-col">
-                                        <div className="flex flex-col items-center gap-4 mb-8">
-                                            <div className="flex-shrink-0 w-24 h-16 rounded-2xl bg-white shadow-sm p-3 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
-                                                {app.iconUrl ? (
-                                                    <img src={app.iconUrl} className="w-full h-full object-contain" alt={app.name} />
-                                                ) : (
-                                                    <span className="material-icons-outlined text-[var(--brand-blue)] text-4xl">apps</span>
-                                                )}
-                                            </div>
-                                            <h3 className="text-2xl font-bold text-[var(--text-primary)] leading-tight">{t.home.exploreApp.replace("{app}", app.name)}</h3>
-                                        </div>
-
-                                        <div className="flex-1 flex flex-col">
-                                            <div className="space-y-3 mb-8 text-left">
-                                                {loadingExplore ? (
-                                                    <div className="space-y-3">
-                                                        <div className="h-4 w-3/4 bg-[var(--neutral-bg)] animate-pulse rounded"></div>
-                                                        <div className="h-4 w-1/2 bg-[var(--neutral-bg)] animate-pulse rounded"></div>
-                                                    </div>
-                                                ) : exploreData[app.id]?.topics.map(topic => (
-                                                    <Link
-                                                        key={topic.id}
-                                                        href={`/?app=${app.key}&module=${exploreData[app.id].moduleKey}&topic=${topic.key}`}
-                                                        className="block group/item flex items-center gap-3 py-2 text-[var(--text-secondary)] hover:text-[var(--brand-blue)] transition-colors"
-                                                    >
-                                                        <span className="material-icons-outlined text-sm opacity-0 -ml-4 group-hover/item:opacity-100 group-hover/item:ml-0 transition-all duration-300">east</span>
-                                                        <span className="font-medium">{getName(topic)}</span>
-                                                    </Link>
-                                                ))}
+                                {apps
+                                    .filter(app => !isInternal || (internalContentData[app.id]?.moduleIds.size > 0))
+                                    .map(app => (
+                                        <div key={app.id} className="group relative w-full sm:w-[380px] rounded-3xl border border-[var(--neutral-border)] bg-[var(--bg-card)] p-8 hover:shadow-[0_30px_60px_rgba(0,0,0,0.12)] hover:border-[var(--brand-blue)] hover:-translate-y-2 transition-all duration-500 text-center flex flex-col">
+                                            <div className="flex flex-col items-center gap-4 mb-8">
+                                                <div className="flex-shrink-0 w-24 h-16 rounded-2xl bg-white shadow-sm p-3 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
+                                                    {app.iconUrl ? (
+                                                        <img src={app.iconUrl} className="w-full h-full object-contain" alt={app.name} />
+                                                    ) : (
+                                                        <span className="material-icons-outlined text-[var(--brand-blue)] text-4xl">apps</span>
+                                                    )}
+                                                </div>
+                                                <h3 className="text-2xl font-bold text-[var(--text-primary)] leading-tight">{t.home.exploreApp.replace("{app}", app.name)}</h3>
                                             </div>
 
-                                            <button
-                                                onClick={() => router.push(`/?app=${app.key}`)}
-                                                className="mt-auto w-full py-4 rounded-xl font-bold bg-[var(--neutral-bg)] text-[var(--text-primary)] hover:bg-[var(--brand-blue)] hover:text-white transition-all duration-300 flex items-center justify-center gap-2"
-                                            >
-                                                {t.home.startGuide} <span className="material-icons-outlined text-lg">arrow_forward</span>
-                                            </button>
+                                            <div className="flex-1 flex flex-col">
+                                                <div className="space-y-3 mb-8 text-left">
+                                                    {loadingExplore ? (
+                                                        <div className="space-y-3">
+                                                            <div className="h-4 w-3/4 bg-[var(--neutral-bg)] animate-pulse rounded"></div>
+                                                            <div className="h-4 w-1/2 bg-[var(--neutral-bg)] animate-pulse rounded"></div>
+                                                        </div>
+                                                    ) : isInternal ? (
+                                                        // Internal view shows modules in explorer box
+                                                        exploreData[app.id]?.modules?.map(module => (
+                                                            <Link
+                                                                key={module.id}
+                                                                href={`${baseUrl}?app=${app.key}&module=${module.key}`}
+                                                                className="block group/item flex items-center gap-3 py-2 text-[var(--text-secondary)] hover:text-[var(--brand-blue)] transition-colors"
+                                                            >
+                                                                <span className="material-icons-outlined text-sm opacity-0 -ml-4 group-hover/item:opacity-100 group-hover/item:ml-0 transition-all duration-300">east</span>
+                                                                <span className="font-medium">{getName(module)}</span>
+                                                            </Link>
+                                                        ))
+                                                    ) : (
+                                                        // Public view shows topics of first module
+                                                        exploreData[app.id]?.topics.map(topic => (
+                                                            <Link
+                                                                key={topic.id}
+                                                                href={`${baseUrl}?app=${app.key}&module=${exploreData[app.id].moduleKey}&topic=${topic.key}`}
+                                                                className="block group/item flex items-center gap-3 py-2 text-[var(--text-secondary)] hover:text-[var(--brand-blue)] transition-colors"
+                                                            >
+                                                                <span className="material-icons-outlined text-sm opacity-0 -ml-4 group-hover/item:opacity-100 group-hover/item:ml-0 transition-all duration-300">east</span>
+                                                                <span className="font-medium">{getName(topic)}</span>
+                                                            </Link>
+                                                        ))
+                                                    )}
+                                                </div>
+
+                                                <button
+                                                    onClick={() => router.push(`${baseUrl}?app=${app.key}`)}
+                                                    className="mt-auto w-full py-4 rounded-xl font-bold bg-[var(--neutral-bg)] text-[var(--text-primary)] hover:bg-[var(--brand-blue)] hover:text-white transition-all duration-300 flex items-center justify-center gap-2"
+                                                >
+                                                    {t.home.startGuide} <span className="material-icons-outlined text-lg">arrow_forward</span>
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
                             </div>
 
                             {/* Old Help Site Redirect */}
@@ -517,13 +570,13 @@ export function HelpCenterClient({ apps }: Props) {
 
                     {/* Content View Logic (Moved from original) */}
                     {selectedApp && (
-                        <div className="mt-12 animate-in fade-in duration-500">
+                        <div className="mt-12 pb-24 animate-in fade-in duration-500">
                             {/* Breadcrumb */}
                             <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-10 overflow-x-auto pb-4">
-                                <button onClick={() => router.push('/')} className="hover:text-[var(--brand-blue)] transition-colors flex items-center gap-1 font-medium">{t.home.breadcrumbHome}</button>
+                                <button onClick={() => router.push(baseUrl)} className="hover:text-[var(--brand-blue)] transition-colors flex items-center gap-1 font-medium">{t.home.breadcrumbHome}</button>
                                 <span className="material-icons-outlined text-xs">chevron_right</span>
                                 {selectedModule || selectedTopic ? (
-                                    <button onClick={() => router.push(`/?app=${selectedApp.key}`)} className="hover:text-[var(--brand-blue)] transition-colors font-medium">{selectedApp.name}</button>
+                                    <button onClick={() => router.push(`${baseUrl}?app=${selectedApp.key}`)} className="hover:text-[var(--brand-blue)] transition-colors font-medium">{selectedApp.name}</button>
                                 ) : (
                                     <span className="text-[var(--text-primary)] font-bold">{selectedApp.name}</span>
                                 )}
@@ -532,7 +585,7 @@ export function HelpCenterClient({ apps }: Props) {
                                     <>
                                         <span className="material-icons-outlined text-xs">chevron_right</span>
                                         {selectedTopic ? (
-                                            <button onClick={() => router.push(`/?app=${selectedApp.key}&module=${selectedModule.key}`)} className="hover:text-[var(--brand-blue)] transition-colors font-medium">{getName(selectedModule)}</button>
+                                            <button onClick={() => router.push(`${baseUrl}?app=${selectedApp.key}&module=${selectedModule.key}`)} className="hover:text-[var(--brand-blue)] transition-colors font-medium">{getName(selectedModule)}</button>
                                         ) : (
                                             <span className="text-[var(--text-primary)] font-bold">{getName(selectedModule)}</span>
                                         )}
@@ -552,31 +605,33 @@ export function HelpCenterClient({ apps }: Props) {
                                 <aside className="space-y-8">
                                     <div className="rounded-3xl border border-[var(--neutral-border)] bg-[var(--bg-card)] p-6 space-y-2">
                                         <div className="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-6 opacity-50 px-3">{t.home.knowledgeModules}</div>
-                                        {modules.map(module => (
-                                            <button
-                                                key={module.id}
-                                                onClick={() => {
-                                                    router.push(`/?app=${selectedApp.key}&module=${module.key}`);
-                                                }}
-                                                className={`w-full text-left rounded-2xl px-5 py-4 flex items-center gap-4 transition-all ${selectedModule?.id === module.id
-                                                    ? 'bg-[var(--brand-blue)] text-white shadow-lg'
-                                                    : 'text-[var(--text-primary)] hover:bg-[var(--neutral-bg)]'}`}
-                                            >
-                                                {module.iconUrl ? (
-                                                    <img
-                                                        src={module.iconUrl}
-                                                        className={`w-5 h-5 object-contain ${selectedModule?.id === module.id
-                                                            ? 'brightness-0 invert'
-                                                            : (isSvg(module.iconUrl) ? 'adaptive-icon' : '')
-                                                            }`}
-                                                        alt=""
-                                                    />
-                                                ) : (
-                                                    <span className="material-icons-outlined text-lg">{module.id === selectedModule?.id ? 'folder_open' : 'folder'}</span>
-                                                )}
-                                                <span className="font-bold text-sm tracking-tight leading-tight">{getName(module)}</span>
-                                            </button>
-                                        ))}
+                                        {modules
+                                            .filter(m => !isInternal || internalContentData[selectedApp.id]?.moduleIds.has(m.id))
+                                            .map(module => (
+                                                <button
+                                                    key={module.id}
+                                                    onClick={() => {
+                                                        router.push(`${baseUrl}?app=${selectedApp.key}&module=${module.key}`);
+                                                    }}
+                                                    className={`w-full text-left rounded-2xl px-5 py-4 flex items-center gap-4 transition-all ${selectedModule?.id === module.id
+                                                        ? 'bg-[var(--brand-blue)] text-white shadow-lg'
+                                                        : 'text-[var(--text-primary)] hover:bg-[var(--neutral-bg)]'}`}
+                                                >
+                                                    {module.iconUrl ? (
+                                                        <img
+                                                            src={module.iconUrl}
+                                                            className={`w-5 h-5 object-contain ${selectedModule?.id === module.id
+                                                                ? 'brightness-0 invert'
+                                                                : (isSvg(module.iconUrl) ? 'adaptive-icon' : '')
+                                                                }`}
+                                                            alt=""
+                                                        />
+                                                    ) : (
+                                                        <span className="material-icons-outlined text-lg">{module.id === selectedModule?.id ? 'folder_open' : 'folder'}</span>
+                                                    )}
+                                                    <span className="font-bold text-sm tracking-tight leading-tight">{getName(module)}</span>
+                                                </button>
+                                            ))}
                                     </div>
                                 </aside>
 
@@ -619,41 +674,43 @@ export function HelpCenterClient({ apps }: Props) {
                                                 {loadingTopics ? (
                                                     <div className="py-12 text-left text-[var(--text-secondary)] col-span-full">{t.home.loadingTopics}</div>
                                                 ) : (
-                                                    topics.map(topic => (
-                                                        <button
-                                                            key={topic.id}
-                                                            onClick={() => {
-                                                                const newParams = new URLSearchParams(searchParams.toString());
-                                                                newParams.set("app", selectedApp.key);
-                                                                newParams.set("module", selectedModule.key);
-                                                                newParams.set("topic", topic.key);
-                                                                router.push(`/?${newParams.toString()}`);
-                                                            }}
-                                                            className="w-full text-left group flex flex-col p-6 rounded-3xl border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] hover:shadow-xl transition-all h-full"
-                                                        >
-                                                            <div className="w-12 h-12 rounded-2xl bg-[var(--brand-blue-muted)] flex items-center justify-center group-hover:scale-110 transition-transform mb-6">
-                                                                {topic.iconUrl ? (
-                                                                    <img
-                                                                        src={topic.iconUrl}
-                                                                        className={`w-7 h-7 object-contain ${isSvg(topic.iconUrl) ? 'adaptive-icon' : ''}`}
-                                                                        alt=""
-                                                                    />
-                                                                ) : (
-                                                                    <span className="material-icons-outlined text-[var(--brand-blue)] text-2xl">category</span>
-                                                                )}
-                                                            </div>
-                                                            <div className="flex-1">
-                                                                <h3 className="text-lg font-bold text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors line-clamp-1">{getName(topic)}</h3>
-                                                                {getDescription(topic) && (
-                                                                    <p className="text-sm text-[var(--text-secondary)] mt-2 line-clamp-2 leading-relaxed">{getDescription(topic)}</p>
-                                                                )}
-                                                            </div>
-                                                            <div className="mt-6 flex items-center gap-2 text-[var(--brand-blue)]">
-                                                                <span className="text-[10px] font-black uppercase tracking-widest">{t.home.exploreTopics}</span>
-                                                                <span className="material-icons-outlined text-sm group-hover:translate-x-1 transition-transform">east</span>
-                                                            </div>
-                                                        </button>
-                                                    ))
+                                                    topics
+                                                        .filter(t => !isInternal || internalContentData[selectedApp.id]?.topicIds.has(t.id))
+                                                        .map(topic => (
+                                                            <button
+                                                                key={topic.id}
+                                                                onClick={() => {
+                                                                    const newParams = new URLSearchParams(searchParams.toString());
+                                                                    newParams.set("app", selectedApp.key);
+                                                                    newParams.set("module", selectedModule.key);
+                                                                    newParams.set("topic", topic.key);
+                                                                    router.push(`${baseUrl}?${newParams.toString()}`);
+                                                                }}
+                                                                className="w-full text-left group flex flex-col p-6 rounded-3xl border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] hover:shadow-xl transition-all h-full"
+                                                            >
+                                                                <div className="w-12 h-12 rounded-2xl bg-[var(--brand-blue-muted)] flex items-center justify-center group-hover:scale-110 transition-transform mb-6">
+                                                                    {topic.iconUrl ? (
+                                                                        <img
+                                                                            src={topic.iconUrl}
+                                                                            className={`w-7 h-7 object-contain ${isSvg(topic.iconUrl) ? 'adaptive-icon' : ''}`}
+                                                                            alt=""
+                                                                        />
+                                                                    ) : (
+                                                                        <span className="material-icons-outlined text-[var(--brand-blue)] text-2xl">category</span>
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <h3 className="text-lg font-bold text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors line-clamp-1">{getName(topic)}</h3>
+                                                                    {getDescription(topic) && (
+                                                                        <p className="text-sm text-[var(--text-secondary)] mt-2 line-clamp-2 leading-relaxed">{getDescription(topic)}</p>
+                                                                    )}
+                                                                </div>
+                                                                <div className="mt-6 flex items-center gap-2 text-[var(--brand-blue)]">
+                                                                    <span className="text-[10px] font-black uppercase tracking-widest">{t.home.exploreTopics}</span>
+                                                                    <span className="material-icons-outlined text-sm group-hover:translate-x-1 transition-transform">east</span>
+                                                                </div>
+                                                            </button>
+                                                        ))
                                                 )}
                                             </div>
 

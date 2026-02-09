@@ -25,13 +25,17 @@ function getLanguageFilter(language: string) {
     };
 }
 
-export async function listArticlesByTopicId(topicId: string, language?: string): Promise<HelpCenterArticle[]> {
+function getVisibilityFilter(visibility: string) {
+    return { property: "Visibility", select: { equals: visibility } };
+}
+
+export async function listArticlesByTopicId(topicId: string, language?: string, visibility: string = "Public"): Promise<HelpCenterArticle[]> {
     if (!NOTION_ARTICLES_DB_ID) throw new Error("NOTION_ARTICLES_DB_ID is missing");
     if (!topicId) return [];
 
     const filters: any[] = [
         { property: "Status", select: { equals: "Published" } },
-        { property: "Visibility", select: { equals: "Public" } },
+        getVisibilityFilter(visibility),
         { property: REL_TOPICS_ON_ARTICLES, relation: { contains: topicId } },
     ];
 
@@ -68,13 +72,13 @@ export async function listArticlesByTopicId(topicId: string, language?: string):
     }).filter(a => a.slug && a.title);
 }
 
-export async function listArticlesByModuleId(moduleId: string, language?: string): Promise<HelpCenterArticle[]> {
+export async function listArticlesByModuleId(moduleId: string, language?: string, visibility: string = "Public"): Promise<HelpCenterArticle[]> {
     if (!NOTION_ARTICLES_DB_ID) throw new Error("NOTION_ARTICLES_DB_ID is missing");
     if (!moduleId) return [];
 
     const filters: any[] = [
         { property: "Status", select: { equals: "Published" } },
-        { property: "Visibility", select: { equals: "Public" } },
+        getVisibilityFilter(visibility),
         { property: REL_MODULES_ON_ARTICLES, relation: { contains: moduleId } },
     ];
 
@@ -111,13 +115,13 @@ export async function listArticlesByModuleId(moduleId: string, language?: string
     }).filter(a => a.slug && a.title);
 }
 
-export async function searchArticles(query: string, language?: string): Promise<HelpCenterArticle[]> {
+export async function searchArticles(query: string, language?: string, visibility: string = "Public"): Promise<HelpCenterArticle[]> {
     if (!NOTION_ARTICLES_DB_ID) throw new Error("NOTION_ARTICLES_DB_ID is missing");
     if (!query) return [];
 
     const filters: any[] = [
         { property: "Status", select: { equals: "Published" } },
-        { property: "Visibility", select: { equals: "Public" } },
+        getVisibilityFilter(visibility),
         {
             or: [
                 { property: "Title", title: { contains: query } },
@@ -138,6 +142,48 @@ export async function searchArticles(query: string, language?: string): Promise<
             { property: "Last Reviewed", direction: "descending" },
         ],
         page_size: 50,
+    });
+
+    return res.results.map((page: any) => {
+        const p = page.properties || {};
+        return {
+            id: page.id,
+            title: String(getPropText(p.Title) || ""),
+            slug: String(getPropText(p.Slug) || "").trim(),
+            excerpt: String(getPropText(p.Excerpt) || ""),
+            status: String(getPropText(p.Status) || ""),
+            visibility: String(getPropText(p.Visibility) || ""),
+            contentType: String(getPropText(p["Content Type"]) || ""),
+            order: Number(getPropText(p.Order) || 0),
+            lastReviewed: (getPropText(p["Last Reviewed"]) as any) || undefined,
+            appIds: getRelationIds(p[REL_APPS_ON_ARTICLES]),
+            moduleIds: getRelationIds(p[REL_MODULES_ON_ARTICLES]),
+            topicIds: getRelationIds(p[REL_TOPICS_ON_ARTICLES]),
+            language: String(getPropText(p.Language) || ""),
+        } satisfies HelpCenterArticle;
+    }).filter(a => a.slug && a.title);
+}
+export async function listArticlesByAppId(appId: string, language?: string, visibility: string = "Public"): Promise<HelpCenterArticle[]> {
+    if (!NOTION_ARTICLES_DB_ID) throw new Error("NOTION_ARTICLES_DB_ID is missing");
+    if (!appId) return [];
+
+    const filters: any[] = [
+        { property: "Status", select: { equals: "Published" } },
+        getVisibilityFilter(visibility),
+        { property: REL_APPS_ON_ARTICLES, relation: { contains: appId } },
+    ];
+
+    if (language) {
+        filters.push(getLanguageFilter(language));
+    }
+
+    const res = await notion.databases.query({
+        database_id: NOTION_ARTICLES_DB_ID,
+        filter: { and: filters },
+        sorts: [
+            { property: "Order", direction: "ascending" },
+            { property: "Last Reviewed", direction: "descending" },
+        ],
     });
 
     return res.results.map((page: any) => {

@@ -6,12 +6,14 @@ export async function GET(request: NextRequest) {
     const appId = searchParams.get("appId");
     const moduleId = searchParams.get("moduleId");
 
+    const visibility = searchParams.get("visibility") || "Public";
+
     if (!appId || !moduleId) {
         return NextResponse.json({ error: "appId and moduleId are required" }, { status: 400 });
     }
 
     try {
-        const topics = await listTopicsByAppAndModule(appId, moduleId);
+        const topics = await listTopicsByAppAndModule(appId, moduleId, visibility);
         return NextResponse.json(topics);
     } catch (error) {
         console.error("Error fetching topics:", error);
