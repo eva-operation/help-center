@@ -22,7 +22,7 @@ export default function Header() {
             <div className="mx-auto max-w-7xl px-6 py-3 flex items-center justify-between">
                 <a href="https://eva.guru" className="flex items-center gap-3 group">
                     <img
-                        src="https://lh3.googleusercontent.com/sitesv/APaQ0STn1U71ADo5WKknsUpOfU5cSwv_X4CdLcTYG-mnvIUZyvlL5LaQ0WP0ZkWJqKIxO7PQqp_jk0YOWvZpIPnOMIwvu2a3dEsnBeIenS3Ec8A2b-lx9Nds9O1EzrFiEsqyzG7zVjTXBn6qJzgGs6g6AZilf2J4cCbK9qgIspD2E3mXXOx3qhhm-ievbChP3D7wrdz740XY99oSUIGPoq4rl_OxehIBypclr3vCirc=w1280"
+                        src="https://orchid-hexagon-821.notion.site/image/attachment%3Aab2c4f67-54b6-47d6-8b58-b6dc4cf09dcf%3Aeva_logo_gradient_for_dark_bg_use_medium.png?table=block&id=301505ff-3c1f-8051-849f-cd82e81f5edb&spaceId=0c8505ff-3c1f-81ec-a609-00038f16f0ac&width=1420&userId=&cache=v2"
                         alt="Eva Logo"
                         className="h-8 w-auto object-contain transition-transform group-hover:scale-105 flex-shrink-0"
                     />
