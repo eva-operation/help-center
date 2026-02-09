@@ -211,7 +211,7 @@ export default async function DocPage({ params, searchParams }: PageProps) {
 
                         <div className="mt-8 border-t border-[var(--neutral-border)] pt-8">
                             <article className="prose prose-invert max-w-none">
-                                <NotionRenderer blocks={blocks} />
+                                <NotionRenderer blocks={blocks} allArticles={articles as any} />
                             </article>
                         </div>
                     </main>

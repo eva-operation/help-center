@@ -615,11 +615,9 @@ export function HelpCenterClient({ apps }: Props) {
                                                 <p className="text-[var(--text-secondary)] leading-relaxed max-w-2xl">{getDescription(selectedModule)}</p>
                                             </div>
 
-                                            <div className="space-y-4">
+                                            <div className={topics.length > 0 ? "grid grid-cols-1 sm:grid-cols-2 gap-4" : ""}>
                                                 {loadingTopics ? (
-                                                    <div className="p-12 text-center text-[var(--text-secondary)]">{t.home.loadingTopics}</div>
-                                                ) : topics.length === 0 ? (
-                                                    <div className="p-12 text-center text-[var(--text-secondary)]">{t.home.noTopicsInModule}</div>
+                                                    <div className="py-12 text-left text-[var(--text-secondary)] col-span-full">{t.home.loadingTopics}</div>
                                                 ) : (
                                                     topics.map(topic => (
                                                         <button
@@ -631,35 +629,65 @@ export function HelpCenterClient({ apps }: Props) {
                                                                 newParams.set("topic", topic.key);
                                                                 router.push(`/?${newParams.toString()}`);
                                                             }}
-                                                            className="w-full text-left group flex items-center justify-between p-6 rounded-3xl border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] hover:shadow-xl transition-all"
+                                                            className="w-full text-left group flex flex-col p-6 rounded-3xl border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] hover:shadow-xl transition-all h-full"
                                                         >
-                                                            <div className="flex items-center gap-6">
-                                                                <div className="w-14 h-14 rounded-2xl bg-[var(--brand-blue-muted)] flex items-center justify-center group-hover:scale-110 transition-transform">
-                                                                    {topic.iconUrl ? (
-                                                                        <img
-                                                                            src={topic.iconUrl}
-                                                                            className={`w-9 h-9 object-contain ${isSvg(topic.iconUrl) ? 'adaptive-icon' : ''}`}
-                                                                            alt=""
-                                                                        />
-                                                                    ) : (
-                                                                        <span className="material-icons-outlined text-[var(--brand-blue)] text-3xl">category</span>
-                                                                    )}
-                                                                </div>
-                                                                <div>
-                                                                    <h3 className="text-xl font-bold text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors">{getName(topic)}</h3>
-                                                                    {getDescription(topic) && (
-                                                                        <p className="text-sm text-[var(--text-secondary)] mt-1 line-clamp-1">{getDescription(topic)}</p>
-                                                                    )}
-                                                                </div>
+                                                            <div className="w-12 h-12 rounded-2xl bg-[var(--brand-blue-muted)] flex items-center justify-center group-hover:scale-110 transition-transform mb-6">
+                                                                {topic.iconUrl ? (
+                                                                    <img
+                                                                        src={topic.iconUrl}
+                                                                        className={`w-7 h-7 object-contain ${isSvg(topic.iconUrl) ? 'adaptive-icon' : ''}`}
+                                                                        alt=""
+                                                                    />
+                                                                ) : (
+                                                                    <span className="material-icons-outlined text-[var(--brand-blue)] text-2xl">category</span>
+                                                                )}
                                                             </div>
-                                                            <div className="flex items-center gap-4">
-                                                                <span className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity">{t.home.exploreTopics}</span>
-                                                                <span className="material-icons-outlined text-[var(--text-secondary)] group-hover:text-[var(--brand-blue)] group-hover:translate-x-1 transition-all">chevron_right</span>
+                                                            <div className="flex-1">
+                                                                <h3 className="text-lg font-bold text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors line-clamp-1">{getName(topic)}</h3>
+                                                                {getDescription(topic) && (
+                                                                    <p className="text-sm text-[var(--text-secondary)] mt-2 line-clamp-2 leading-relaxed">{getDescription(topic)}</p>
+                                                                )}
+                                                            </div>
+                                                            <div className="mt-6 flex items-center gap-2 text-[var(--brand-blue)]">
+                                                                <span className="text-[10px] font-black uppercase tracking-widest">{t.home.exploreTopics}</span>
+                                                                <span className="material-icons-outlined text-sm group-hover:translate-x-1 transition-transform">east</span>
                                                             </div>
                                                         </button>
                                                     ))
                                                 )}
                                             </div>
+
+                                            {allModuleArticles.length > 0 && (
+                                                <div className="mt-16 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+                                                    <div className="mb-8 p-4 bg-[var(--brand-blue-muted)] rounded-2xl border border-[var(--brand-blue-muted)] inline-flex items-center gap-3">
+                                                        <span className="material-icons-outlined text-[var(--brand-blue)]">auto_stories</span>
+                                                        <h3 className="text-sm font-black uppercase tracking-widest text-[var(--brand-blue)]">
+                                                            {t.home.allArticlesInModule.replace("{module}", getName(selectedModule))}
+                                                        </h3>
+                                                    </div>
+
+                                                    <div className="grid gap-3">
+                                                        {allModuleArticles.map(article => (
+                                                            <Link
+                                                                key={article.id}
+                                                                href={getArticleUrl(article, 'module')}
+                                                                className="group flex items-center justify-between p-5 rounded-2xl border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] hover:shadow-lg transition-all"
+                                                            >
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className="w-10 h-10 rounded-xl bg-[var(--bg-tertiary)] flex items-center justify-center group-hover:bg-[var(--brand-blue-muted)] transition-colors">
+                                                                        <span className="material-icons-outlined text-[var(--text-muted)] group-hover:text-[var(--brand-blue)] text-sm">description</span>
+                                                                    </div>
+                                                                    <div>
+                                                                        <div className="font-bold text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors">{article.title}</div>
+                                                                        {article.excerpt && <div className="text-xs text-[var(--text-secondary)] mt-0.5 line-clamp-1">{article.excerpt}</div>}
+                                                                    </div>
+                                                                </div>
+                                                                <span className="material-icons-outlined text-[var(--text-muted)] group-hover:text-[var(--brand-blue)] group-hover:translate-x-1 transition-all text-sm">east</span>
+                                                            </Link>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </main>

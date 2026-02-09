@@ -1,7 +1,9 @@
 
 import React from 'react';
+import Link from 'next/link';
 
 import { generateHeadingId } from '../../utils/headingUtils';
+import type { HelpCenterArticle } from '../../../lib/types';
 
 // Helper to extract plain text from rich text for ID generation
 const getPlainText = (text: any[]): string => {
@@ -9,9 +11,43 @@ const getPlainText = (text: any[]): string => {
     return text.map(t => t.plain_text || "").join("");
 };
 
+// Helper to convert Notion URLs to internal Help Center links
+const getInternalLink = (url: string, articles: HelpCenterArticle[]): string | null => {
+    if (!url || !articles || articles.length === 0) return null;
+
+    // Check if it's a notion URL
+    if (url.includes('notion.so/')) {
+        try {
+            // Notion URLs often end with a 32-character ID (last part after the last hyphen or slash)
+            // Example: https://www.notion.so/evaguru/Some-Page-eb055743f111449eb8d25a3962650772
+            // Example: https://www.notion.so/eb055743f111449eb8d25a3962650772
+
+            const urlObj = new URL(url);
+            const pathParts = urlObj.pathname.split('/');
+            const lastPart = pathParts[pathParts.length - 1];
+
+            // Look for a 32-character hex ID, potentially with hyphens
+            const idMatch = lastPart.match(/[a-f0-9]{32}|[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i);
+
+            if (idMatch) {
+                const rawId = idMatch[0].replace(/-/g, '').toLowerCase();
+
+                const article = articles.find(a => a.id.replace(/-/g, '').toLowerCase() === rawId);
+                if (article) {
+                    return `/docs/${article.slug}`;
+                }
+            }
+        } catch (e) {
+            console.error("Error parsing URL in getInternalLink:", url, e);
+        }
+    }
+
+    return null;
+};
+
 // --- Types ---
 
-const RichText = ({ text }: { text: any[] }) => {
+const RichText = ({ text, allArticles }: { text: any[], allArticles?: HelpCenterArticle[] }) => {
     if (!text || !Array.isArray(text)) return null;
 
     return (
@@ -49,11 +85,21 @@ const RichText = ({ text }: { text: any[] }) => {
                 }
 
                 if (t.href) {
-                    content = (
-                        <a href={t.href} target="_blank" rel="noopener noreferrer" className="text-[var(--brand-blue)] hover:underline decoration-1 underline-offset-2">
-                            {content}
-                        </a>
-                    );
+                    const internalLink = allArticles ? getInternalLink(t.href, allArticles) : null;
+
+                    if (internalLink) {
+                        content = (
+                            <Link href={internalLink} className="text-[var(--brand-blue)] hover:underline decoration-1 underline-offset-2">
+                                {content}
+                            </Link>
+                        );
+                    } else {
+                        content = (
+                            <a href={t.href} target="_blank" rel="noopener noreferrer" className="text-[var(--brand-blue)] hover:underline decoration-1 underline-offset-2">
+                                {content}
+                            </a>
+                        );
+                    }
                 }
 
                 return <React.Fragment key={index}>{content}</React.Fragment>;
@@ -73,19 +119,19 @@ const getColorClass = (color?: string): string => {
 
 // --- Block Renderers ---
 
-const ParagraphBlock = ({ block }: { block: any }) => {
+const ParagraphBlock = ({ block, allArticles }: { block: any, allArticles?: HelpCenterArticle[] }) => {
     const color = block.paragraph?.color;
     const colorClass = getColorClass(color);
     const isBackground = color?.includes('_background');
 
     return (
         <p className={`my-2 text-[var(--text-primary)] leading-relaxed min-h-[1.5em] whitespace-pre-wrap ${colorClass} ${isBackground ? 'p-4 rounded-lg' : ''}`}>
-            <RichText text={block.paragraph.rich_text} />
+            <RichText text={block.paragraph.rich_text} allArticles={allArticles} />
         </p>
     );
 };
 
-const Heading1Block = ({ block, children }: { block: any, children?: React.ReactNode }) => {
+const Heading1Block = ({ block, children, allArticles }: { block: any, children?: React.ReactNode, allArticles?: HelpCenterArticle[] }) => {
     const text = getPlainText(block.heading_1.rich_text);
     const id = generateHeadingId(text);
     const colorClass = getColorClass(block.heading_1.color);
@@ -94,7 +140,7 @@ const Heading1Block = ({ block, children }: { block: any, children?: React.React
 
     const content = (
         <h1 id={id} className={`mt-10 mb-4 text-3xl font-bold text-[var(--text-primary)] tracking-tight scroll-mt-24 ${colorClass} ${isBackground ? 'p-4 rounded-lg' : ''}`}>
-            <RichText text={block.heading_1.rich_text} />
+            <RichText text={block.heading_1.rich_text} allArticles={allArticles} />
         </h1>
     );
 
@@ -115,7 +161,7 @@ const Heading1Block = ({ block, children }: { block: any, children?: React.React
     return content;
 };
 
-const Heading2Block = ({ block, children }: { block: any, children?: React.ReactNode }) => {
+const Heading2Block = ({ block, children, allArticles }: { block: any, children?: React.ReactNode, allArticles?: HelpCenterArticle[] }) => {
     const text = getPlainText(block.heading_2.rich_text);
     const id = generateHeadingId(text);
     const colorClass = getColorClass(block.heading_2.color);
@@ -124,7 +170,7 @@ const Heading2Block = ({ block, children }: { block: any, children?: React.React
 
     const content = (
         <h2 id={id} className={`mt-8 mb-3 text-2xl font-bold text-[var(--text-primary)] pb-2 border-b border-[var(--neutral-border)] tracking-tight scroll-mt-24 ${colorClass} ${isBackground ? 'p-4 rounded-lg' : ''}`}>
-            <RichText text={block.heading_2.rich_text} />
+            <RichText text={block.heading_2.rich_text} allArticles={allArticles} />
         </h2>
     );
 
@@ -145,7 +191,7 @@ const Heading2Block = ({ block, children }: { block: any, children?: React.React
     return content;
 };
 
-const Heading3Block = ({ block, children }: { block: any, children?: React.ReactNode }) => {
+const Heading3Block = ({ block, children, allArticles }: { block: any, children?: React.ReactNode, allArticles?: HelpCenterArticle[] }) => {
     const text = getPlainText(block.heading_3.rich_text);
     const id = generateHeadingId(text);
     const colorClass = getColorClass(block.heading_3.color);
@@ -154,7 +200,7 @@ const Heading3Block = ({ block, children }: { block: any, children?: React.React
 
     const content = (
         <h3 id={id} className={`mt-6 mb-2 text-xl font-semibold text-[var(--text-primary)] scroll-mt-24 ${colorClass} ${isBackground ? 'p-4 rounded-lg' : ''}`}>
-            <RichText text={block.heading_3.rich_text} />
+            <RichText text={block.heading_3.rich_text} allArticles={allArticles} />
         </h3>
     );
 
@@ -175,26 +221,26 @@ const Heading3Block = ({ block, children }: { block: any, children?: React.React
     return content;
 };
 
-const ListItemContent = ({ block, children }: { block: any, children?: React.ReactNode }) => {
+const ListItemContent = ({ block, children, allArticles }: { block: any, children?: React.ReactNode, allArticles?: HelpCenterArticle[] }) => {
     const richText = block.type === 'bulleted_list_item' ? block.bulleted_list_item.rich_text : block.numbered_list_item.rich_text;
 
     return (
         <li className="my-1 text-[var(--text-primary)] leading-relaxed pl-1">
             <div className="inline-block">
-                <RichText text={richText} />
+                <RichText text={richText} allArticles={allArticles} />
             </div>
             {children}
         </li>
     );
 };
 
-const QuoteBlock = ({ block }: { block: any }) => (
+const QuoteBlock = ({ block, allArticles }: { block: any, allArticles?: HelpCenterArticle[] }) => (
     <blockquote className="my-4 pl-4 border-l-4 border-[var(--brand-purple)] bg-[var(--bg-tertiary)] py-3 px-4 rounded-r-lg italic text-[var(--text-secondary)]">
-        <RichText text={block.quote.rich_text} />
+        <RichText text={block.quote.rich_text} allArticles={allArticles} />
     </blockquote>
 );
 
-const CalloutBlock = ({ block, children }: { block: any, children?: React.ReactNode }) => {
+const CalloutBlock = ({ block, children, allArticles }: { block: any, children?: React.ReactNode, allArticles?: HelpCenterArticle[] }) => {
     const icon = block.callout.icon;
     const color = block.callout.color;
     const colorClass = getColorClass(color);
@@ -211,18 +257,18 @@ const CalloutBlock = ({ block, children }: { block: any, children?: React.ReactN
         <div className={`my-4 p-4 rounded-lg border border-[var(--neutral-border)] flex items-start gap-3 ${colorClass || 'bg-[var(--bg-tertiary)]'}`}>
             {iconEl}
             <div className="text-[var(--text-primary)] flex-1">
-                <RichText text={block.callout.rich_text} />
+                <RichText text={block.callout.rich_text} allArticles={allArticles} />
                 {children && <div className="mt-2 space-y-1">{children}</div>}
             </div>
         </div>
     );
 };
 
-const CodeBlock = ({ block }: { block: any }) => (
+const CodeBlock = ({ block, allArticles }: { block: any, allArticles?: HelpCenterArticle[] }) => (
     <div className="my-4 relative group">
         <pre className="p-4 rounded-lg bg-[#1e1e1e] border border-[var(--neutral-border)] overflow-x-auto text-sm font-mono text-[var(--text-primary)] shadow-inner">
             <code>
-                <RichText text={block.code.rich_text} />
+                <RichText text={block.code.rich_text} allArticles={allArticles} />
             </code>
         </pre>
         {block.code.language && (
@@ -233,13 +279,13 @@ const CodeBlock = ({ block }: { block: any }) => (
     </div>
 );
 
-const ToggleBlock = ({ block, children }: { block: any, children?: React.ReactNode }) => {
+const ToggleBlock = ({ block, children, allArticles }: { block: any, children?: React.ReactNode, allArticles?: HelpCenterArticle[] }) => {
     return (
         <details className="my-2 group">
             <summary className="cursor-pointer list-none flex items-start gap-2 text-[var(--text-primary)] font-medium p-2 rounded hover:bg-[var(--neutral-bg)] transition-colors select-none">
                 <span className="mt-0.5 transition-transform group-open:rotate-90 text-[var(--text-muted)] text-xs">▶</span>
                 <div className="flex-1">
-                    <RichText text={block.toggle.rich_text} />
+                    <RichText text={block.toggle.rich_text} allArticles={allArticles} />
                 </div>
             </summary>
             {/* Wrapper div for children content indentation */}
@@ -254,7 +300,7 @@ const DividerBlock = () => (
     <hr className="my-8 border-[var(--neutral-border)]" />
 );
 
-const ImageBlock = ({ block }: { block: any }) => {
+const ImageBlock = ({ block, allArticles }: { block: any, allArticles?: HelpCenterArticle[] }) => {
     const src = block.image.type === 'external' ? block.image.external.url : block.image.file?.url;
     const caption = block.image.caption?.length > 0 ? block.image.caption : null;
 
@@ -265,7 +311,7 @@ const ImageBlock = ({ block }: { block: any }) => {
             <img src={src} alt="Notion Image" className="rounded-lg border border-[var(--neutral-border)] w-full h-auto max-h-[600px] object-contain bg-[var(--bg-tertiary)]" loading="lazy" />
             {caption && (
                 <figcaption className="mt-2 text-center text-sm text-[var(--text-muted)] italic">
-                    <RichText text={caption} />
+                    <RichText text={caption} allArticles={allArticles} />
                 </figcaption>
             )}
         </figure>
@@ -294,20 +340,20 @@ const EquationBlock = ({ block }: { block: any }) => {
     );
 }
 
-const TableBlock = ({ block }: { block: any }) => {
+const TableBlock = ({ block, allArticles }: { block: any, allArticles?: HelpCenterArticle[] }) => {
     const rows = block.children || [];
     return (
         <div className="my-6 overflow-x-auto rounded-lg border border-[var(--neutral-border)]">
             <table className="w-full text-left text-sm border-collapse">
                 <tbody>
-                    {rows.map((row: any) => <TableRowBlock key={row.id} block={row} />)}
+                    {rows.map((row: any) => <TableRowBlock key={row.id} block={row} allArticles={allArticles} />)}
                 </tbody>
             </table>
         </div>
     );
 };
 
-const TableRowBlock = ({ block }: { block: any }) => {
+const TableRowBlock = ({ block, allArticles }: { block: any, allArticles?: HelpCenterArticle[] }) => {
     const cells = block.table_row?.cells || [];
     return (
         <tr className="border-b border-[var(--neutral-border)] last:border-0 bg-[var(--bg-card)] hover:bg-[var(--bg-tertiary)] transition-colors">
@@ -318,7 +364,7 @@ const TableRowBlock = ({ block }: { block: any }) => {
 
                 return (
                     <td key={idx} className={`px-4 py-3 border-r border-[var(--neutral-border)] last:border-0 whitespace-pre-wrap min-w-[150px] ${bgClass}`}>
-                        <RichText text={cell} />
+                        <RichText text={cell} allArticles={allArticles} />
                     </td>
                 );
             })}
@@ -328,33 +374,33 @@ const TableRowBlock = ({ block }: { block: any }) => {
 
 // --- Main Renderer ---
 
-const RenderBlock = ({ block }: { block: any }) => {
+const RenderBlock = ({ block, allArticles }: { block: any, allArticles?: HelpCenterArticle[] }) => {
     // If block has children, recursively render them.
     // SKIP for 'table' because TableBlock handles its own children (rows) manually
     // to ensure valid HTML structure (no div wrapper between table and tr).
     let children = null;
     if (block.type !== 'table' && block.children && block.children.length > 0) {
-        children = <NotionRenderer blocks={block.children} />;
+        children = <NotionRenderer blocks={block.children} allArticles={allArticles} />;
     }
 
     switch (block.type) {
-        case 'paragraph': return <ParagraphBlock block={block} />;
-        case 'heading_1': return <Heading1Block block={block}>{children}</Heading1Block>;
-        case 'heading_2': return <Heading2Block block={block}>{children}</Heading2Block>;
-        case 'heading_3': return <Heading3Block block={block}>{children}</Heading3Block>;
-        case 'bulleted_list_item': return <ListItemContent block={block}>{children}</ListItemContent>;
-        case 'numbered_list_item': return <ListItemContent block={block}>{children}</ListItemContent>;
-        case 'toggle': return <ToggleBlock block={block}>{children}</ToggleBlock>;
-        case 'quote': return <QuoteBlock block={block} />;
-        case 'callout': return <CalloutBlock block={block}>{children}</CalloutBlock>;
-        case 'code': return <CodeBlock block={block} />;
+        case 'paragraph': return <ParagraphBlock block={block} allArticles={allArticles} />;
+        case 'heading_1': return <Heading1Block block={block} allArticles={allArticles}>{children}</Heading1Block>;
+        case 'heading_2': return <Heading2Block block={block} allArticles={allArticles}>{children}</Heading2Block>;
+        case 'heading_3': return <Heading3Block block={block} allArticles={allArticles}>{children}</Heading3Block>;
+        case 'bulleted_list_item': return <ListItemContent block={block} allArticles={allArticles}>{children}</ListItemContent>;
+        case 'numbered_list_item': return <ListItemContent block={block} allArticles={allArticles}>{children}</ListItemContent>;
+        case 'toggle': return <ToggleBlock block={block} allArticles={allArticles}>{children}</ToggleBlock>;
+        case 'quote': return <QuoteBlock block={block} allArticles={allArticles} />;
+        case 'callout': return <CalloutBlock block={block} allArticles={allArticles}>{children}</CalloutBlock>;
+        case 'code': return <CodeBlock block={block} allArticles={allArticles} />;
         case 'divider': return <DividerBlock />;
-        case 'image': return <ImageBlock block={block} />;
+        case 'image': return <ImageBlock block={block} allArticles={allArticles} />;
         case 'bookmark': return <BookmarkBlock block={block} />;
         case 'equation': return <EquationBlock block={block} />;
         // Table handles its own children to ensure valid HTML (no div inside tbody)
-        case 'table': return <TableBlock block={block} />;
-        case 'table_row': return <TableRowBlock block={block} />;
+        case 'table': return <TableBlock block={block} allArticles={allArticles} />;
+        case 'table_row': return <TableRowBlock block={block} allArticles={allArticles} />;
         default:
             if (children) return <div className="pl-4">{children}</div>;
             return null;
@@ -363,9 +409,10 @@ const RenderBlock = ({ block }: { block: any }) => {
 
 type Props = {
     blocks: any[];
+    allArticles?: HelpCenterArticle[];
 };
 
-export function NotionRenderer({ blocks }: Props) {
+export function NotionRenderer({ blocks, allArticles }: Props) {
     if (!blocks || blocks.length === 0) return null;
 
     const result: React.ReactNode[] = [];
@@ -386,7 +433,7 @@ export function NotionRenderer({ blocks }: Props) {
 
                 result.push(
                     <Tag key={`list-${i}`} className={className}>
-                        {currentList.map(b => <RenderBlock key={b.id} block={b} />)}
+                        {currentList.map(b => <RenderBlock key={b.id} block={b} allArticles={allArticles} />)}
                     </Tag>
                 );
                 currentList = [];
@@ -403,7 +450,7 @@ export function NotionRenderer({ blocks }: Props) {
 
                 result.push(
                     <Tag key={`list-${i}`} className={className}>
-                        {currentList.map(b => <RenderBlock key={b.id} block={b} />)}
+                        {currentList.map(b => <RenderBlock key={b.id} block={b} allArticles={allArticles} />)}
                     </Tag>
                 );
                 currentList = [];
@@ -411,7 +458,7 @@ export function NotionRenderer({ blocks }: Props) {
             }
 
             // Render normal block
-            result.push(<RenderBlock key={block.id} block={block} />);
+            result.push(<RenderBlock key={block.id} block={block} allArticles={allArticles} />);
         }
     }
 
@@ -424,7 +471,7 @@ export function NotionRenderer({ blocks }: Props) {
 
         result.push(
             <Tag key={`list-end`} className={className}>
-                {currentList.map(b => <RenderBlock key={b.id} block={b} />)}
+                {currentList.map(b => <RenderBlock key={b.id} block={b} allArticles={allArticles} />)}
             </Tag>
         );
     }
