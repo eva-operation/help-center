@@ -26,21 +26,19 @@ export default function Footer() {
                             </a>
                         </div>
                         <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                            {language === 'tr'
-                                ? "Eva E-Commerce Intelligence için kapsamlı dokümantasyon ve bilgi merkezi."
-                                : "Comprehensive documentation and resource center for Eva E-Commerce Intelligence."}
+                            {t.footer.description}
                         </p>
                     </div>
 
                     {/* Resources */}
                     <div>
                         <h4 className="text-sm font-semibold text-[var(--text-primary)] uppercase tracking-wider mb-4">
-                            {language === 'tr' ? 'Kaynaklar' : 'Resources'}
+                            {t.footer.resources}
                         </h4>
                         <ul className="space-y-2">
                             <li>
                                 <Link href="/" className="text-sm text-[var(--text-secondary)] hover:text-[var(--brand-blue)] transition-colors">
-                                    {language === 'tr' ? 'Intelligence Hub' : 'Intelligence Hub'}
+                                    {t.footer.hub}
                                 </Link>
                             </li>
                         </ul>
@@ -49,17 +47,17 @@ export default function Footer() {
                     {/* Support */}
                     <div>
                         <h4 className="text-sm font-semibold text-[var(--text-primary)] uppercase tracking-wider mb-4">
-                            {language === 'tr' ? 'Destek' : 'Support'}
+                            {t.footer.support}
                         </h4>
                         <ul className="space-y-2">
                             <li>
                                 <Link href="/search" className="text-sm text-[var(--text-secondary)] hover:text-[var(--brand-blue)] transition-colors">
-                                    {language === 'tr' ? 'Arama' : 'Search'}
+                                    {t.footer.search}
                                 </Link>
                             </li>
                             <li>
-                                <a href="mailto:support@eva.guru" className="text-sm text-[var(--text-secondary)] hover:text-[var(--brand-blue)] transition-colors">
-                                    {language === 'tr' ? 'İletişim' : 'Contact Support'}
+                                <a href="mailto:customersuccess@eva.guru" className="text-sm text-[var(--text-secondary)] hover:text-[var(--brand-blue)] transition-colors">
+                                    {t.footer.contactSupport}
                                 </a>
                             </li>
                         </ul>
@@ -68,15 +66,9 @@ export default function Footer() {
                     {/* Language Switch */}
                     <div>
                         <h4 className="text-sm font-semibold text-[var(--text-primary)] uppercase tracking-wider mb-4">
-                            {language === 'tr' ? 'Dil' : 'Language'}
+                            {t.footer.language}
                         </h4>
                         <div className="flex gap-4">
-                            <button
-                                className={`text-sm ${language === 'tr' ? 'text-[var(--brand-blue)] font-bold' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors'}`}
-                                onClick={() => setLanguage('tr')}
-                            >
-                                TR
-                            </button>
                             <button
                                 className={`text-sm ${language === 'en' ? 'text-[var(--brand-blue)] font-bold' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors'}`}
                                 onClick={() => setLanguage('en')}
@@ -95,15 +87,15 @@ export default function Footer() {
 
                 <div className="pt-8 border-t border-[var(--neutral-border)] flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-xs text-[var(--text-muted)] text-center md:text-left">
-                        © {currentYear} Eva E-Commerce Intelligence. {language === 'tr' ? 'Tüm hakları saklıdır.' : 'All rights reserved.'}
+                        © {currentYear} Eva E-Commerce Intelligence. {t.footer.allRightsReserved}
                     </p>
                     <div className="flex gap-6 text-xs text-[var(--text-muted)]">
-                        <Link href="/privacy" className="hover:text-[var(--brand-blue)] transition-colors">
-                            {language === 'tr' ? 'Gizlilik' : 'Privacy Policy'}
-                        </Link>
-                        <Link href="/terms" className="hover:text-[var(--brand-blue)] transition-colors">
-                            {language === 'tr' ? 'Şartlar' : 'Terms of Service'}
-                        </Link>
+                        <a href="https://eva.guru/privacy-policy/" className="hover:text-[var(--brand-blue)] transition-colors">
+                            {t.footer.privacyPolicy}
+                        </a>
+                        <a href="https://eva.guru/terms-and-conditions/" className="hover:text-[var(--brand-blue)] transition-colors">
+                            {t.footer.termsOfService}
+                        </a>
                     </div>
                 </div>
             </div>

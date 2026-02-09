@@ -13,7 +13,6 @@ export default function Header() {
 
     const languages: { key: Language; label: string; code: string }[] = [
         { key: "en", label: "English", code: "EN" },
-        { key: "tr", label: "Türkçe", code: "TR" },
         { key: "zh", label: "中文", code: "ZH" },
     ];
 

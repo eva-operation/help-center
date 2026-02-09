@@ -42,7 +42,6 @@ export const en = {
     },
     languages: {
         en: "English",
-        tr: "Türkçe",
         zh: "中文"
     },
     article: {
@@ -52,5 +51,17 @@ export const en = {
         aiSummaryTitle: "AI SUMMARY",
         expand: "Expand",
         collapse: "Collapse"
+    },
+    footer: {
+        description: "Comprehensive documentation and resource center for Eva E-Commerce Intelligence.",
+        resources: "Resources",
+        hub: "Intelligence Hub",
+        support: "Support",
+        search: "Search",
+        contactSupport: "Contact Support",
+        language: "Language",
+        allRightsReserved: "All rights reserved.",
+        privacyPolicy: "Privacy Policy",
+        termsOfService: "Terms of Service"
     }
 };

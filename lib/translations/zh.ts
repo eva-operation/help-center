@@ -42,7 +42,6 @@ export const zh = {
     },
     languages: {
         en: "English",
-        tr: "Türkçe",
         zh: "中文"
     },
     article: {
@@ -52,5 +51,17 @@ export const zh = {
         aiSummaryTitle: "AI 摘要",
         expand: "展开",
         collapse: "收起"
+    },
+    footer: {
+        description: "Eva E-Commerce Intelligence 的全面文档和资源中心。",
+        resources: "资源",
+        hub: "智慧中心",
+        support: "支持",
+        search: "搜索",
+        contactSupport: "联系支持",
+        language: "语言",
+        allRightsReserved: "版权所有。",
+        privacyPolicy: "隐私政策",
+        termsOfService: "服务条款"
     }
 };

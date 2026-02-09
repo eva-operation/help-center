@@ -61,6 +61,8 @@ export async function generateMetadata({ params }: PageProps) {
     };
 }
 
+import { ArticleLanguageWatcher } from "../../components/ArticleLanguageWatcher";
+
 export default async function DocPage({ params, searchParams }: PageProps) {
     try {
         const { slug } = await params;
@@ -102,8 +104,19 @@ export default async function DocPage({ params, searchParams }: PageProps) {
 
         const isContextual = !!bModule && !!bApp;
 
+        // Calculate redirect URL for language changes
+        let redirectUrl = "/";
+        if (isContextual) {
+            if (bTopic) {
+                redirectUrl = `/?app=${bApp?.key}&module=${bModule?.key}&topic=${bTopic.key}`;
+            } else {
+                redirectUrl = `/?app=${bApp?.key}&module=${bModule?.key}`;
+            }
+        }
+
         return (
             <div className="mx-auto max-w-7xl px-6 py-8">
+                <ArticleLanguageWatcher redirectUrl={redirectUrl} />
                 <a href="#main-content" className="sr-only focus:not-sr-only mb-4 block">Skip to content</a>
                 {/* Breadcrumb - Moved out of the article box */}
                 <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] mb-6 overflow-x-auto whitespace-nowrap px-1">

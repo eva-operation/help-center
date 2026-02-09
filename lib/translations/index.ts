@@ -1,10 +1,8 @@
 import { en } from './en';
-import { tr } from './tr';
 import { zh } from './zh';
 
 export const translations = {
     en,
-    tr,
     zh,
 };
 

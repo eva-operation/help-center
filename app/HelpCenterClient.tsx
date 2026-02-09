@@ -94,7 +94,7 @@ export function HelpCenterClient({ apps }: Props) {
     }, []);
 
     const [isInteracted, setIsInteracted] = useState(false);
-    const [exploreData, setExploreData] = useState<Record<string, { moduleName: string, topics: HelpCenterTopic[] }>>({});
+    const [exploreData, setExploreData] = useState<Record<string, { moduleKey: string, topics: HelpCenterTopic[] }>>({});
     const [loadingExplore, setLoadingExplore] = useState(false);
 
     // Synchronize isInteracted with URL params
@@ -131,7 +131,7 @@ export function HelpCenterClient({ apps }: Props) {
 
                     if (Array.isArray(topics)) {
                         data[app.id] = {
-                            moduleName: getName(firstModule),
+                            moduleKey: firstModule.key,
                             topics: topics.slice(0, 5) // Show top 5 topics
                         };
                     }
@@ -203,13 +203,17 @@ export function HelpCenterClient({ apps }: Props) {
         fetch(`/api/modules?appId=${selectedApp.id}`)
             .then(res => res.json())
             .then(data => {
-                if (Array.isArray(data)) {
+                if (Array.isArray(data) && data.length > 0) {
                     setModules(data);
-                    // If no module is selected in URL, select the first one
+                    // If no module is selected in URL, select the first one and update URL
                     const moduleKey = searchParams.get("module");
-                    if (!moduleKey && data.length > 0) {
-                        setSelectedModule(data[0]);
+                    if (!moduleKey) {
+                        const newParams = new URLSearchParams(searchParams.toString());
+                        newParams.set("module", data[0].key);
+                        router.push(`/?${newParams.toString()}`, { scroll: false });
                     }
+                } else {
+                    setModules([]);
                 }
             })
             .finally(() => setLoadingModules(false));
@@ -467,7 +471,7 @@ export function HelpCenterClient({ apps }: Props) {
                                                 ) : exploreData[app.id]?.topics.map(topic => (
                                                     <Link
                                                         key={topic.id}
-                                                        href={`/?app=${app.key}&topic=${topic.key}`}
+                                                        href={`/?app=${app.key}&module=${exploreData[app.id].moduleKey}&topic=${topic.key}`}
                                                         className="block group/item flex items-center gap-3 py-2 text-[var(--text-secondary)] hover:text-[var(--brand-blue)] transition-colors"
                                                     >
                                                         <span className="material-icons-outlined text-sm opacity-0 -ml-4 group-hover/item:opacity-100 group-hover/item:ml-0 transition-all duration-300">east</span>
@@ -510,21 +514,33 @@ export function HelpCenterClient({ apps }: Props) {
                     {selectedApp && (
                         <div className="mt-12 animate-in fade-in duration-500">
                             {/* Breadcrumb */}
-                            {selectedTopic && (
-                                <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-10 overflow-x-auto pb-4">
-                                    <button onClick={() => router.push('/')} className="hover:text-[var(--brand-blue)] transition-colors flex items-center gap-1 font-medium">{t.home.breadcrumbHome}</button>
-                                    <span className="material-icons-outlined text-xs">chevron_right</span>
+                            <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-10 overflow-x-auto pb-4">
+                                <button onClick={() => router.push('/')} className="hover:text-[var(--brand-blue)] transition-colors flex items-center gap-1 font-medium">{t.home.breadcrumbHome}</button>
+                                <span className="material-icons-outlined text-xs">chevron_right</span>
+                                {selectedModule || selectedTopic ? (
                                     <button onClick={() => router.push(`/?app=${selectedApp.key}`)} className="hover:text-[var(--brand-blue)] transition-colors font-medium">{selectedApp.name}</button>
-                                    {selectedModule && (
-                                        <>
-                                            <span className="material-icons-outlined text-xs">chevron_right</span>
+                                ) : (
+                                    <span className="text-[var(--text-primary)] font-bold">{selectedApp.name}</span>
+                                )}
+
+                                {selectedModule && (
+                                    <>
+                                        <span className="material-icons-outlined text-xs">chevron_right</span>
+                                        {selectedTopic ? (
                                             <button onClick={() => router.push(`/?app=${selectedApp.key}&module=${selectedModule.key}`)} className="hover:text-[var(--brand-blue)] transition-colors font-medium">{getName(selectedModule)}</button>
-                                        </>
-                                    )}
-                                    <span className="material-icons-outlined text-xs">chevron_right</span>
-                                    <span className="text-[var(--text-primary)] font-bold">{getName(selectedTopic)}</span>
-                                </div>
-                            )}
+                                        ) : (
+                                            <span className="text-[var(--text-primary)] font-bold">{getName(selectedModule)}</span>
+                                        )}
+                                    </>
+                                )}
+
+                                {selectedTopic && (
+                                    <>
+                                        <span className="material-icons-outlined text-xs">chevron_right</span>
+                                        <span className="text-[var(--text-primary)] font-bold">{getName(selectedTopic)}</span>
+                                    </>
+                                )}
+                            </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-12">
                                 {/* Sidebar */}
