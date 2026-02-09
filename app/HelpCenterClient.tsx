@@ -35,14 +35,12 @@ export function HelpCenterClient({ apps }: Props) {
 
     const getDescription = (item: HelpCenterApp | HelpCenterModule | HelpCenterTopic | null) => {
         if (!item) return "";
-        if (language === 'tr') return item.descriptionTR || item.description;
         if (language === 'zh') return item.descriptionZH || item.description;
         return item.description;
     };
 
     const getName = (item: HelpCenterApp | HelpCenterModule | HelpCenterTopic | null) => {
         if (!item) return "";
-        if (language === 'tr' && 'nameTR' in item) return item.nameTR || item.name;
         if (language === 'zh' && 'nameZH' in item) return item.nameZH || item.name;
         return item.name;
     };
@@ -117,7 +115,7 @@ export function HelpCenterClient({ apps }: Props) {
 
     async function fetchExploreData() {
         setLoadingExplore(true);
-        const data: Record<string, { moduleName: string, topics: HelpCenterTopic[] }> = {};
+        const data: Record<string, { moduleKey: string, topics: HelpCenterTopic[] }> = {};
 
         try {
             await Promise.all(apps.map(async (app) => {
@@ -501,7 +499,7 @@ export function HelpCenterClient({ apps }: Props) {
                                 >
                                     <span className="material-icons-outlined text-lg">history</span>
                                     <span className="text-sm font-medium">
-                                        {language === 'tr' ? 'Önceki Eva Help\'i mi arıyorsunuz?' : language === 'zh' ? '寻找以前的 Eva Help？' : 'Looking for the previous Eva Help?'}
+                                        {language === 'zh' ? '寻找以前的 Eva Help？' : 'Looking for the previous Eva Help?'}
                                     </span>
                                     <span className="material-icons-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
                                 </a>
