@@ -8,6 +8,13 @@ import { useLanguage } from "../lib/i18n";
 
 const normalize = (s: string) => (s ?? "").trim().toLowerCase();
 
+const isSvg = (url?: string) => {
+    if (!url) return false;
+    // Handle potential query params or fragments in the URL
+    const cleanUrl = url.split('?')[0].split('#')[0];
+    return cleanUrl.toLowerCase().endsWith('.svg');
+};
+
 type Props = {
     apps: HelpCenterApp[];
 };
@@ -556,7 +563,14 @@ export function HelpCenterClient({ apps }: Props) {
                                                     : 'text-[var(--text-primary)] hover:bg-[var(--neutral-bg)]'}`}
                                             >
                                                 {module.iconUrl ? (
-                                                    <img src={module.iconUrl} className={`w-5 h-5 object-contain ${selectedModule?.id === module.id ? 'brightness-0 invert' : ''}`} alt="" />
+                                                    <img
+                                                        src={module.iconUrl}
+                                                        className={`w-5 h-5 object-contain ${selectedModule?.id === module.id
+                                                            ? 'brightness-0 invert'
+                                                            : (isSvg(module.iconUrl) ? 'adaptive-icon' : '')
+                                                            }`}
+                                                        alt=""
+                                                    />
                                                 ) : (
                                                     <span className="material-icons-outlined text-lg">{module.id === selectedModule?.id ? 'folder_open' : 'folder'}</span>
                                                 )}
@@ -622,7 +636,11 @@ export function HelpCenterClient({ apps }: Props) {
                                                             <div className="flex items-center gap-6">
                                                                 <div className="w-14 h-14 rounded-2xl bg-[var(--brand-blue-muted)] flex items-center justify-center group-hover:scale-110 transition-transform">
                                                                     {topic.iconUrl ? (
-                                                                        <img src={topic.iconUrl} className="w-9 h-9 object-contain" alt="" />
+                                                                        <img
+                                                                            src={topic.iconUrl}
+                                                                            className={`w-9 h-9 object-contain ${isSvg(topic.iconUrl) ? 'adaptive-icon' : ''}`}
+                                                                            alt=""
+                                                                        />
                                                                     ) : (
                                                                         <span className="material-icons-outlined text-[var(--brand-blue)] text-3xl">category</span>
                                                                     )}

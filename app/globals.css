@@ -255,3 +255,16 @@ html {
     text-decoration-color: var(--brand-blue) !important;
     text-underline-offset: 4px;
 }
+
+/* Adaptive icons: Black in light mode, White in dark mode */
+.adaptive-icon {
+    filter: brightness(0);
+}
+
+:root:not([data-theme='light']) .adaptive-icon {
+    filter: brightness(0) invert(1);
+}
+
+[data-theme='dark'] .adaptive-icon {
+    filter: brightness(0) invert(1);
+}
