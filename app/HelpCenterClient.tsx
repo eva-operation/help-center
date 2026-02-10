@@ -495,10 +495,25 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                                         <div key={app.id} className="group relative w-full sm:w-[380px] rounded-3xl border border-[var(--neutral-border)] bg-[var(--bg-card)] p-8 hover:shadow-[0_30px_60px_rgba(0,0,0,0.12)] hover:border-[var(--brand-blue)] hover:-translate-y-2 transition-all duration-500 text-center flex flex-col">
                                             <div className="flex flex-col items-center gap-4 mb-8">
                                                 <div className="flex-shrink-0 w-24 h-16 rounded-2xl bg-white shadow-sm p-3 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
-                                                    {app.iconUrl ? (
-                                                        <img src={app.iconUrl} className="w-full h-full object-contain" alt={app.name} />
-                                                    ) : (
+                                                    {!app.iconUrl ? (
                                                         <span className="material-icons-outlined text-[var(--brand-blue)] text-4xl">apps</span>
+                                                    ) : (
+                                                        <>
+                                                            <img
+                                                                src={app.iconUrl}
+                                                                className="w-full h-full object-contain"
+                                                                alt={app.name}
+                                                                crossOrigin="anonymous"
+                                                                referrerPolicy="no-referrer"
+                                                                onError={(e) => {
+                                                                    const target = e.currentTarget as HTMLImageElement;
+                                                                    target.style.display = 'none';
+                                                                    const fallback = target.nextElementSibling as HTMLElement;
+                                                                    if (fallback) fallback.style.display = 'block';
+                                                                }}
+                                                            />
+                                                            <span style={{ display: 'none' }} className="material-icons-outlined text-[var(--brand-blue)] text-4xl">apps</span>
+                                                        </>
                                                     )}
                                                 </div>
                                                 <h3 className="text-2xl font-bold text-[var(--text-primary)] leading-tight">{t.home.exploreApp.replace("{app}", app.name)}</h3>
@@ -617,17 +632,32 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                                                         ? 'bg-[var(--brand-blue)] text-white shadow-lg'
                                                         : 'text-[var(--text-primary)] hover:bg-[var(--neutral-bg)]'}`}
                                                 >
-                                                    {module.iconUrl ? (
-                                                        <img
-                                                            src={module.iconUrl}
-                                                            className={`w-5 h-5 object-contain ${selectedModule?.id === module.id
-                                                                ? 'brightness-0 invert'
-                                                                : (isSvg(module.iconUrl) ? 'adaptive-icon' : '')
-                                                                }`}
-                                                            alt=""
-                                                        />
+                                                    {!module.iconUrl ? (
+                                                        <span className="material-icons-outlined text-lg">
+                                                            {module.id === selectedModule?.id ? 'folder_open' : 'folder'}
+                                                        </span>
                                                     ) : (
-                                                        <span className="material-icons-outlined text-lg">{module.id === selectedModule?.id ? 'folder_open' : 'folder'}</span>
+                                                        <>
+                                                            <img
+                                                                src={module.iconUrl}
+                                                                className={`w-5 h-5 object-contain ${selectedModule?.id === module.id
+                                                                    ? 'brightness-0 invert'
+                                                                    : (isSvg(module.iconUrl) ? 'adaptive-icon' : '')
+                                                                    }`}
+                                                                alt=""
+                                                                crossOrigin="anonymous"
+                                                                referrerPolicy="no-referrer"
+                                                                onError={(e) => {
+                                                                    const target = e.currentTarget as HTMLImageElement;
+                                                                    target.style.display = 'none';
+                                                                    const fallback = target.nextElementSibling as HTMLElement;
+                                                                    if (fallback) fallback.style.display = 'block';
+                                                                }}
+                                                            />
+                                                            <span style={{ display: 'none' }} className="material-icons-outlined text-lg">
+                                                                {module.id === selectedModule?.id ? 'folder_open' : 'folder'}
+                                                            </span>
+                                                        </>
                                                     )}
                                                     <span className="font-bold text-sm tracking-tight leading-tight">{getName(module)}</span>
                                                 </button>
@@ -689,14 +719,25 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                                                                 className="w-full text-left group flex flex-col p-6 rounded-3xl border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] hover:shadow-xl transition-all h-full"
                                                             >
                                                                 <div className="w-12 h-12 rounded-2xl bg-[var(--brand-blue-muted)] flex items-center justify-center group-hover:scale-110 transition-transform mb-6">
-                                                                    {topic.iconUrl ? (
-                                                                        <img
-                                                                            src={topic.iconUrl}
-                                                                            className={`w-7 h-7 object-contain ${isSvg(topic.iconUrl) ? 'adaptive-icon' : ''}`}
-                                                                            alt=""
-                                                                        />
-                                                                    ) : (
+                                                                    {!topic.iconUrl ? (
                                                                         <span className="material-icons-outlined text-[var(--brand-blue)] text-2xl">category</span>
+                                                                    ) : (
+                                                                        <>
+                                                                            <img
+                                                                                src={topic.iconUrl}
+                                                                                className={`w-7 h-7 object-contain ${isSvg(topic.iconUrl) ? 'adaptive-icon' : ''}`}
+                                                                                alt=""
+                                                                                crossOrigin="anonymous"
+                                                                                referrerPolicy="no-referrer"
+                                                                                onError={(e) => {
+                                                                                    const target = e.currentTarget as HTMLImageElement;
+                                                                                    target.style.display = 'none';
+                                                                                    const fallback = target.nextElementSibling as HTMLElement;
+                                                                                    if (fallback) fallback.style.display = 'block';
+                                                                                }}
+                                                                            />
+                                                                            <span style={{ display: 'none' }} className="material-icons-outlined text-[var(--brand-blue)] text-2xl">category</span>
+                                                                        </>
                                                                     )}
                                                                 </div>
                                                                 <div className="flex-1">

@@ -23,6 +23,7 @@ export const zh = {
         waysToGetStarted: "入门方法",
         exploreApp: "探索 {app}",
         startGuide: "开始指南",
+        internalBanner: "内部帮助中心",
         knowledgeModules: "知识模块",
         exploreTopics: "探索主题"
     },

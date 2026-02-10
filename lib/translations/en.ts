@@ -23,6 +23,7 @@ export const en = {
         waysToGetStarted: "Ways to get started",
         exploreApp: "Explore {app}",
         startGuide: "Start Guide",
+        internalBanner: "Internal Help Center",
         knowledgeModules: "Knowledge Modules",
         exploreTopics: "Explore Topics"
     },
