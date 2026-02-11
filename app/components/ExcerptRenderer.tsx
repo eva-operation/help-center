@@ -53,7 +53,7 @@ export function ExcerptRenderer({ excerpt, excerptRich }: ExcerptRendererProps) 
             if (italic) classNames.push("italic");
             if (strikethrough) classNames.push("line-through opacity-60");
             if (underline) classNames.push("underline decoration-1 underline-offset-4");
-            if (code) classNames.push("bg-[var(--bg-tertiary)] px-1 rounded font-mono text-sm border border-[var(--neutral-border)]");
+            if (code) classNames.push("bg-[var(--bg-tertiary)] px-1 rounded font-mono border border-[var(--neutral-border)]");
 
             if (color && color !== 'default') {
                 if (color.endsWith('_background')) {
@@ -78,7 +78,7 @@ export function ExcerptRenderer({ excerpt, excerptRich }: ExcerptRendererProps) 
     const isComplete = charCount >= excerpt.length;
 
     return (
-        <div className="mt-6 rounded-xl border border-[var(--neutral-border)] bg-[var(--bg-card)] shadow-sm overflow-hidden transition-all duration-300">
+        <div className="ai-summary-box mt-6 rounded-xl shadow-sm overflow-hidden transition-all duration-300">
             {/* Header / Collapse Toggle */}
             <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
@@ -90,7 +90,7 @@ export function ExcerptRenderer({ excerpt, excerptRich }: ExcerptRendererProps) 
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                     </div>
-                    <span className="text-[13px] font-bold text-[var(--text-primary)] tracking-wider">{(t as any).article.aiSummaryTitle}</span>
+                    <span className="ai-summary-title font-bold text-[var(--text-primary)] tracking-wider">{(t as any).article.aiSummaryTitle}</span>
                 </div>
                 <div className="flex items-center gap-2">
                     <span className="text-[10px] text-[var(--text-muted)] font-medium uppercase tracking-tighter">
@@ -120,7 +120,7 @@ export function ExcerptRenderer({ excerpt, excerptRich }: ExcerptRendererProps) 
                         </div>
                     ) : (
                         <>
-                            <div className="text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap text-base font-medium">
+                            <div className="ai-summary-content text-[var(--text-primary)] whitespace-pre-wrap font-medium">
                                 <div className="inline">
                                     {excerptRich && excerptRich.length > 0
                                         ? renderRichTyped(excerptRich, charCount)
@@ -137,7 +137,7 @@ export function ExcerptRenderer({ excerpt, excerptRich }: ExcerptRendererProps) 
                                 <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span className="text-xs leading-relaxed italic">
+                                <span className="ai-disclaimer leading-relaxed italic">
                                     {(t as any).article.aiDisclaimer}
                                 </span>
                             </div>

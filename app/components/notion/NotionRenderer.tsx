@@ -60,7 +60,7 @@ const RichText = ({ text, allArticles }: { text: any[], allArticles?: HelpCenter
 
                 // Inline Equation Support
                 if (t.type === 'equation') {
-                    content = <span className="font-mono text-sm bg-[var(--bg-tertiary)] px-1 rounded mx-0.5" title="Equation">{t.equation.expression}</span>;
+                    content = <span className="font-mono bg-[var(--bg-tertiary)] px-1 rounded mx-0.5" title="Equation">{t.equation.expression}</span>;
                 }
 
                 // Apply styles
@@ -69,7 +69,7 @@ const RichText = ({ text, allArticles }: { text: any[], allArticles?: HelpCenter
                 if (italic) classNames.push("italic");
                 if (strikethrough) classNames.push("!line-through text-[var(--text-muted)]");
                 if (underline) classNames.push("!underline decoration-[var(--brand-blue)] decoration-1 underline-offset-4");
-                if (code) classNames.push("bg-[var(--bg-tertiary)] px-1 py-0.5 rounded text-sm font-mono text-[var(--brand-blue)] border border-[var(--neutral-border)]");
+                if (code) classNames.push("bg-[var(--bg-tertiary)] px-1 py-0.5 rounded font-mono text-[var(--brand-blue)] border border-[var(--neutral-border)]");
 
                 // Color handling
                 if (color && color !== 'default') {
@@ -139,7 +139,7 @@ const Heading1Block = ({ block, children, allArticles }: { block: any, children?
     const isToggleable = block.heading_1.is_toggleable;
 
     const content = (
-        <h1 id={id} className={`mt-10 mb-4 text-3xl font-bold text-[var(--text-primary)] tracking-tight scroll-mt-24 ${colorClass} ${isBackground ? 'p-4 rounded-lg' : ''}`}>
+        <h1 id={id} className={`mt-10 mb-4 font-bold text-[var(--text-primary)] tracking-tight scroll-mt-24 ${colorClass} ${isBackground ? 'p-4 rounded-lg' : ''}`}>
             <RichText text={block.heading_1.rich_text} allArticles={allArticles} />
         </h1>
     );
@@ -169,7 +169,7 @@ const Heading2Block = ({ block, children, allArticles }: { block: any, children?
     const isToggleable = block.heading_2.is_toggleable;
 
     const content = (
-        <h2 id={id} className={`mt-8 mb-3 text-2xl font-bold text-[var(--text-primary)] pb-2 border-b border-[var(--neutral-border)] tracking-tight scroll-mt-24 ${colorClass} ${isBackground ? 'p-4 rounded-lg' : ''}`}>
+        <h2 id={id} className={`mt-8 mb-3 font-bold text-[var(--text-primary)] pb-2 border-b border-[var(--neutral-border)] tracking-tight scroll-mt-24 ${colorClass} ${isBackground ? 'p-4 rounded-lg' : ''}`}>
             <RichText text={block.heading_2.rich_text} allArticles={allArticles} />
         </h2>
     );
@@ -199,7 +199,7 @@ const Heading3Block = ({ block, children, allArticles }: { block: any, children?
     const isToggleable = block.heading_3.is_toggleable;
 
     const content = (
-        <h3 id={id} className={`mt-6 mb-2 text-xl font-semibold text-[var(--text-primary)] scroll-mt-24 ${colorClass} ${isBackground ? 'p-4 rounded-lg' : ''}`}>
+        <h3 id={id} className={`mt-6 mb-2 font-semibold text-[var(--text-primary)] scroll-mt-24 ${colorClass} ${isBackground ? 'p-4 rounded-lg' : ''}`}>
             <RichText text={block.heading_3.rich_text} allArticles={allArticles} />
         </h3>
     );
@@ -266,7 +266,7 @@ const CalloutBlock = ({ block, children, allArticles }: { block: any, children?:
 
 const CodeBlock = ({ block, allArticles }: { block: any, allArticles?: HelpCenterArticle[] }) => (
     <div className="my-4 relative group">
-        <pre className="p-4 rounded-lg bg-[#1e1e1e] border border-[var(--neutral-border)] overflow-x-auto text-sm font-mono text-[var(--text-primary)] shadow-inner">
+        <pre className="p-4 rounded-lg bg-[#1e1e1e] border border-[var(--neutral-border)] overflow-x-auto font-mono text-[var(--text-primary)] shadow-inner">
             <code>
                 <RichText text={block.code.rich_text} allArticles={allArticles} />
             </code>

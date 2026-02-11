@@ -25,7 +25,7 @@ export const en = {
         startGuide: "Start Guide",
         internalBanner: "Internal Help Center",
         knowledgeModules: "Knowledge Modules",
-        exploreTopics: "Explore Topics"
+        exploreTopics: "Explore Articles"
     },
     search: {
         backToHome: "Back to Intelligence Hub",

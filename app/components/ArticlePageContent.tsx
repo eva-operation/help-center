@@ -172,7 +172,7 @@ export async function ArticlePageContent({ slug, searchParams, visibility }: Art
                     </aside>
 
                     <main id="main-content" className="rounded-lg border border-[var(--neutral-border)] bg-[var(--bg-card)] p-8">
-                        <h1 className="text-3xl font-bold text-[var(--text-primary)]">{a.title}</h1>
+                        <h1 className="font-bold text-[var(--text-primary)]">{a.title}</h1>
                         {a.excerpt ? <ExcerptRenderer excerpt={a.excerpt} excerptRich={a.excerptRich} /> : null}
 
                         <div className="mt-8 border-t border-[var(--neutral-border)] pt-8">

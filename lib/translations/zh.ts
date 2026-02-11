@@ -25,7 +25,7 @@ export const zh = {
         startGuide: "开始指南",
         internalBanner: "内部帮助中心",
         knowledgeModules: "知识模块",
-        exploreTopics: "探索主题"
+        exploreTopics: "探索文章"
     },
     search: {
         backToHome: "返回首页",

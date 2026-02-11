@@ -268,3 +268,114 @@ html {
 [data-theme='dark'] .adaptive-icon {
     filter: brightness(0) invert(1);
 }
+
+/* ========================================
+   TYPOGRAPHY SYSTEM - Article Reading Page
+   ======================================== */
+
+/* Headings */
+.prose h1,
+.notion-content h1,
+h1 {
+    font-size: 24px;
+    line-height: 1.2;
+}
+
+.prose h2,
+.notion-content h2,
+h2 {
+    font-size: 22px;
+    line-height: 1.3;
+}
+
+.prose h3,
+.notion-content h3,
+h3 {
+    font-size: 20px;
+    line-height: 1.3;
+}
+
+.prose h4,
+.notion-content h4,
+h4 {
+    font-size: 18px;
+    line-height: 1.3;
+}
+
+/* Body Text */
+.prose p,
+.notion-content p,
+.prose,
+.notion-content {
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+/* Small Text */
+.prose small,
+.text-sm {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Code and Formula */
+.prose code,
+.notion-content code,
+.prose pre,
+.notion-content pre,
+.font-mono {
+    font-size: 15px;
+}
+
+/* Navigation - Left Menu Title */
+aside .font-semibold,
+.sidebar-title {
+    font-size: 16px;
+}
+
+/* Navigation - Left Menu Items */
+aside a,
+aside .text-sm,
+nav a {
+    font-size: 14px;
+}
+
+/* Breadcrumb */
+.breadcrumb,
+.text-xs {
+    font-size: 13px;
+}
+
+/* Buttons */
+button,
+.btn,
+a.button {
+    font-size: 14px;
+}
+
+/* Footer and Captions */
+footer,
+figcaption,
+.caption,
+.text-xs.italic {
+    font-size: 12px;
+}
+
+/* AI Summary Box - Differentiated Styling */
+.ai-summary-box {
+    background: linear-gradient(135deg, rgba(4, 114, 253, 0.08) 0%, rgba(104, 61, 229, 0.08) 100%);
+    border: 1px solid rgba(4, 114, 253, 0.3);
+}
+
+.ai-summary-box .ai-summary-content {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.ai-summary-box .ai-summary-title {
+    font-size: 13px;
+}
+
+.ai-summary-box .ai-disclaimer {
+    font-size: 12px;
+}
