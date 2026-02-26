@@ -67,6 +67,8 @@ export async function listArticlesByTopicId(topicId: string, language?: string, 
             appIds: getRelationIds(p[REL_APPS_ON_ARTICLES]),
             moduleIds: getRelationIds(p[REL_MODULES_ON_ARTICLES]),
             topicIds: getRelationIds(p[REL_TOPICS_ON_ARTICLES]),
+            masterArticleIds: getRelationIds(p["Master Article"]),
+            articleType: String(getPropText(p["Article Type"]) || ""),
             language: String(getPropText(p.Language) || ""),
         } satisfies HelpCenterArticle;
     }).filter(a => a.slug && a.title);
@@ -110,6 +112,8 @@ export async function listArticlesByModuleId(moduleId: string, language?: string
             appIds: getRelationIds(p[REL_APPS_ON_ARTICLES]),
             moduleIds: getRelationIds(p[REL_MODULES_ON_ARTICLES]),
             topicIds: getRelationIds(p[REL_TOPICS_ON_ARTICLES]),
+            masterArticleIds: getRelationIds(p["Master Article"]),
+            articleType: String(getPropText(p["Article Type"]) || ""),
             language: String(getPropText(p.Language) || ""),
         } satisfies HelpCenterArticle;
     }).filter(a => a.slug && a.title);
@@ -159,6 +163,8 @@ export async function searchArticles(query: string, language?: string, visibilit
             appIds: getRelationIds(p[REL_APPS_ON_ARTICLES]),
             moduleIds: getRelationIds(p[REL_MODULES_ON_ARTICLES]),
             topicIds: getRelationIds(p[REL_TOPICS_ON_ARTICLES]),
+            masterArticleIds: getRelationIds(p["Master Article"]),
+            articleType: String(getPropText(p["Article Type"]) || ""),
             language: String(getPropText(p.Language) || ""),
         } satisfies HelpCenterArticle;
     }).filter(a => a.slug && a.title);
@@ -201,6 +207,8 @@ export async function listArticlesByAppId(appId: string, language?: string, visi
             appIds: getRelationIds(p[REL_APPS_ON_ARTICLES]),
             moduleIds: getRelationIds(p[REL_MODULES_ON_ARTICLES]),
             topicIds: getRelationIds(p[REL_TOPICS_ON_ARTICLES]),
+            masterArticleIds: getRelationIds(p["Master Article"]),
+            articleType: String(getPropText(p["Article Type"]) || ""),
             language: String(getPropText(p.Language) || ""),
         } satisfies HelpCenterArticle;
     }).filter(a => a.slug && a.title);

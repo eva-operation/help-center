@@ -40,6 +40,7 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
     const [searching, setSearching] = useState(false);
     const [logoError, setLogoError] = useState(false);
     const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
+    const [expandedMasters, setExpandedMasters] = useState<Record<string, boolean>>({});
     const debounceTimer = useRef<NodeJS.Timeout | null>(null);
     const { language, t } = useLanguage();
 
@@ -673,24 +674,68 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                                             {getDescription(selectedTopic) && <p className="text-lg text-[var(--text-secondary)] mb-10 leading-relaxed max-w-2xl">{getDescription(selectedTopic)}</p>}
 
                                             <div className="grid gap-4">
-                                                {topicArticles.map(article => (
-                                                    <Link
-                                                        key={article.id}
-                                                        href={getArticleUrl(article, 'topic')}
-                                                        className="group flex items-center justify-between p-6 rounded-3xl border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] hover:shadow-xl transition-all"
-                                                    >
-                                                        <div className="flex items-center gap-5">
-                                                            <div className="w-12 h-12 rounded-2xl bg-[var(--brand-blue-muted)] flex items-center justify-center group-hover:scale-110 transition-transform">
-                                                                <span className="material-icons-outlined text-[var(--brand-blue)]">article</span>
+                                                {(() => {
+                                                    const topLevel = topicArticles.filter(a => !a.masterArticleIds?.length);
+                                                    const byMaster = topicArticles.filter(a => a.masterArticleIds?.length).reduce((acc, a) => {
+                                                        const mId = a.masterArticleIds![0];
+                                                        acc[mId] = acc[mId] || [];
+                                                        acc[mId].push(a);
+                                                        return acc;
+                                                    }, {} as Record<string, typeof topicArticles>);
+
+                                                    return topLevel.map(article => (
+                                                        <div key={article.id} className="flex flex-col gap-2 relative">
+                                                            <div className="group flex items-center justify-between p-6 rounded-3xl border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] hover:shadow-xl transition-all">
+                                                                <Link href={getArticleUrl(article, 'topic')} className="flex items-center gap-5 flex-1 min-w-0">
+                                                                    <div className="w-12 h-12 rounded-2xl bg-[var(--brand-blue-muted)] flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                                                                        <span className="material-icons-outlined text-[var(--brand-blue)]">{article.articleType === 'Video' ? 'play_circle' : 'article'}</span>
+                                                                    </div>
+                                                                    <div className="flex-1 min-w-0">
+                                                                        <div className="font-bold text-lg text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors">{article.title}</div>
+                                                                        {article.excerpt && <div className="text-sm text-[var(--text-secondary)] mt-1 line-clamp-1">{article.excerpt}</div>}
+                                                                    </div>
+                                                                </Link>
+                                                                <div className="flex items-center gap-2 pl-4 shrink-0">
+                                                                    {byMaster[article.id] && byMaster[article.id].length > 0 && (
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                e.preventDefault();
+                                                                                setExpandedMasters(prev => ({ ...prev, [article.id]: !prev[article.id] }));
+                                                                            }}
+                                                                            className="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--neutral-bg)] hover:bg-[var(--brand-blue-muted)] text-[var(--text-secondary)] hover:text-[var(--brand-blue)] transition-all z-10"
+                                                                            title="Toggle Sub-articles"
+                                                                        >
+                                                                            <span className="material-icons-outlined">{expandedMasters[article.id] ? "expand_less" : "expand_more"}</span>
+                                                                        </button>
+                                                                    )}
+                                                                    <Link href={getArticleUrl(article, 'topic')} className="w-10 h-10 flex items-center justify-center">
+                                                                        <span className="material-icons-outlined text-[var(--text-secondary)] group-hover:text-[var(--brand-blue)] group-hover:translate-x-1 transition-all">chevron_right</span>
+                                                                    </Link>
+                                                                </div>
                                                             </div>
-                                                            <div>
-                                                                <div className="font-bold text-lg text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors">{article.title}</div>
-                                                                {article.excerpt && <div className="text-sm text-[var(--text-secondary)] mt-1 line-clamp-1">{article.excerpt}</div>}
-                                                            </div>
+
+                                                            {expandedMasters[article.id] && byMaster[article.id] && byMaster[article.id].length > 0 && (
+                                                                <div className="ml-8 pl-4 border-l border-[var(--neutral-border)] flex flex-col gap-3 py-2 animate-in slide-in-from-top-2 fade-in duration-300">
+                                                                    {byMaster[article.id].map(sub => (
+                                                                        <Link
+                                                                            key={sub.id}
+                                                                            href={getArticleUrl(sub, 'topic')}
+                                                                            className="group flex items-center gap-4 p-4 rounded-2xl border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] hover:shadow-md transition-all relative"
+                                                                        >
+                                                                            <div className="absolute -left-4 top-1/2 w-4 border-t border-[var(--neutral-border)] group-hover:border-[var(--brand-blue)] transition-colors"></div>
+                                                                            <div className="w-8 h-8 rounded-xl bg-[var(--bg-tertiary)] flex items-center justify-center group-hover:bg-[var(--brand-blue-muted)] transition-colors shrink-0">
+                                                                                <span className="material-icons-outlined text-[var(--text-secondary)] text-sm group-hover:text-[var(--brand-blue)]">subdirectory_arrow_right</span>
+                                                                            </div>
+                                                                            <div className="flex-1 min-w-0">
+                                                                                <div className="font-semibold text-sm text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors truncate">{sub.title}</div>
+                                                                            </div>
+                                                                        </Link>
+                                                                    ))}
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                        <span className="material-icons-outlined text-[var(--text-secondary)] group-hover:text-[var(--brand-blue)] group-hover:translate-x-1 transition-all">chevron_right</span>
-                                                    </Link>
-                                                ))}
+                                                    ));
+                                                })()}
                                             </div>
                                         </div>
                                     ) : selectedModule && (
@@ -765,24 +810,68 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                                                     </div>
 
                                                     <div className="grid gap-3">
-                                                        {allModuleArticles.map(article => (
-                                                            <Link
-                                                                key={article.id}
-                                                                href={getArticleUrl(article, 'module')}
-                                                                className="group flex items-center justify-between p-5 rounded-2xl border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] hover:shadow-lg transition-all"
-                                                            >
-                                                                <div className="flex items-center gap-4">
-                                                                    <div className="w-10 h-10 rounded-xl bg-[var(--bg-tertiary)] flex items-center justify-center group-hover:bg-[var(--brand-blue-muted)] transition-colors">
-                                                                        <span className="material-icons-outlined text-[var(--text-muted)] group-hover:text-[var(--brand-blue)] text-sm">description</span>
+                                                        {(() => {
+                                                            const topLevel = allModuleArticles.filter(a => !a.masterArticleIds?.length);
+                                                            const byMaster = allModuleArticles.filter(a => a.masterArticleIds?.length).reduce((acc, a) => {
+                                                                const mId = a.masterArticleIds![0];
+                                                                acc[mId] = acc[mId] || [];
+                                                                acc[mId].push(a);
+                                                                return acc;
+                                                            }, {} as Record<string, typeof allModuleArticles>);
+
+                                                            return topLevel.map(article => (
+                                                                <div key={article.id} className="flex flex-col gap-2 relative">
+                                                                    <div className="group flex items-center justify-between p-5 rounded-2xl border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] hover:shadow-lg transition-all">
+                                                                        <Link href={getArticleUrl(article, 'module')} className="flex items-center gap-4 flex-1 min-w-0">
+                                                                            <div className="w-10 h-10 rounded-xl bg-[var(--bg-tertiary)] flex items-center justify-center group-hover:bg-[var(--brand-blue-muted)] transition-colors shrink-0">
+                                                                                <span className="material-icons-outlined text-[var(--text-muted)] group-hover:text-[var(--brand-blue)] text-sm">{article.articleType === 'Video' ? 'play_circle' : 'description'}</span>
+                                                                            </div>
+                                                                            <div className="flex-1 min-w-0">
+                                                                                <div className="font-bold text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors">{article.title}</div>
+                                                                                {article.excerpt && <div className="text-xs text-[var(--text-secondary)] mt-0.5 line-clamp-1">{article.excerpt}</div>}
+                                                                            </div>
+                                                                        </Link>
+                                                                        <div className="flex items-center gap-2 pl-4 shrink-0">
+                                                                            {byMaster[article.id] && byMaster[article.id].length > 0 && (
+                                                                                <button
+                                                                                    onClick={(e) => {
+                                                                                        e.preventDefault();
+                                                                                        setExpandedMasters(prev => ({ ...prev, [article.id]: !prev[article.id] }));
+                                                                                    }}
+                                                                                    className="w-8 h-8 flex items-center justify-center rounded-full bg-[var(--neutral-bg)] hover:bg-[var(--brand-blue-muted)] text-[var(--text-secondary)] hover:text-[var(--brand-blue)] transition-all z-10"
+                                                                                    title="Toggle Sub-articles"
+                                                                                >
+                                                                                    <span className="material-icons-outlined text-sm">{expandedMasters[article.id] ? "expand_less" : "expand_more"}</span>
+                                                                                </button>
+                                                                            )}
+                                                                            <Link href={getArticleUrl(article, 'module')} className="w-8 h-8 flex items-center justify-center">
+                                                                                <span className="material-icons-outlined text-[var(--text-muted)] group-hover:text-[var(--brand-blue)] group-hover:translate-x-1 transition-all text-sm">east</span>
+                                                                            </Link>
+                                                                        </div>
                                                                     </div>
-                                                                    <div>
-                                                                        <div className="font-bold text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors">{article.title}</div>
-                                                                        {article.excerpt && <div className="text-xs text-[var(--text-secondary)] mt-0.5 line-clamp-1">{article.excerpt}</div>}
-                                                                    </div>
+
+                                                                    {expandedMasters[article.id] && byMaster[article.id] && byMaster[article.id].length > 0 && (
+                                                                        <div className="ml-6 pl-4 border-l border-[var(--neutral-border)] flex flex-col gap-2 py-1 animate-in slide-in-from-top-2 fade-in duration-300">
+                                                                            {byMaster[article.id].map(sub => (
+                                                                                <Link
+                                                                                    key={sub.id}
+                                                                                    href={getArticleUrl(sub, 'module')}
+                                                                                    className="group flex items-center gap-3 p-3 rounded-xl border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] hover:shadow-md transition-all relative"
+                                                                                >
+                                                                                    <div className="absolute -left-4 top-1/2 w-4 border-t border-[var(--neutral-border)] group-hover:border-[var(--brand-blue)] transition-colors"></div>
+                                                                                    <div className="w-8 h-8 rounded-lg bg-[var(--bg-tertiary)] flex items-center justify-center group-hover:bg-[var(--brand-blue-muted)] transition-colors shrink-0">
+                                                                                        <span className="material-icons-outlined text-[var(--text-secondary)] text-xs group-hover:text-[var(--brand-blue)]">subdirectory_arrow_right</span>
+                                                                                    </div>
+                                                                                    <div className="flex-1 min-w-0">
+                                                                                        <div className="font-semibold text-xs text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors truncate">{sub.title}</div>
+                                                                                    </div>
+                                                                                </Link>
+                                                                            ))}
+                                                                        </div>
+                                                                    )}
                                                                 </div>
-                                                                <span className="material-icons-outlined text-[var(--text-muted)] group-hover:text-[var(--brand-blue)] group-hover:translate-x-1 transition-all text-sm">east</span>
-                                                            </Link>
-                                                        ))}
+                                                            ));
+                                                        })()}
                                                     </div>
                                                 </div>
                                             )}

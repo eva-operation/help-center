@@ -58,5 +58,7 @@ export type HelpCenterArticle = {
     appIds: string[];
     moduleIds: string[];
     topicIds: string[];
+    masterArticleIds?: string[];
+    articleType?: string;
     language?: string;
 };
