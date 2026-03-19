@@ -47,12 +47,14 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
     const getDescription = (item: HelpCenterApp | HelpCenterModule | HelpCenterTopic | null) => {
         if (!item) return "";
         if (language === 'zh') return item.descriptionZH || item.description;
+        if (language === 'tr') return item.descriptionTR || item.description;
         return item.description;
     };
 
     const getName = (item: HelpCenterApp | HelpCenterModule | HelpCenterTopic | null) => {
         if (!item) return "";
         if (language === 'zh' && 'nameZH' in item) return item.nameZH || item.name;
+        if (language === 'tr' && 'nameTR' in item) return item.nameTR || item.name;
         return item.name;
     };
 
@@ -118,12 +120,12 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
         }
     }, [searchParams, searchQuery]);
 
-    // Fetch Explore Data (Apps -> 1st Module -> Topics)
+    // Fetch Explore Data (Apps -> 1st Module -> Topics) - Run on mount or when apps change
     useEffect(() => {
-        if (isInteracted && Object.keys(exploreData).length === 0 && !loadingExplore) {
+        if (apps.length > 0 && Object.keys(exploreData).length === 0 && !loadingExplore) {
             fetchExploreData();
         }
-    }, [isInteracted]);
+    }, [apps]);
 
     async function fetchExploreData() {
         setLoadingExplore(true);
@@ -420,21 +422,24 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
             </div>
 
             {/* Stage Container */}
-            <div className={`flex-1 flex flex-col transition-all duration-700 ease-in-out relative z-10 ${!isInteracted ? 'justify-center pb-32 mt-[-5vh]' : 'pt-12'}`}>
+            <div className={`flex-1 flex flex-col transition-all duration-700 ease-in-out relative z-10 ${!isInteracted ? 'justify-center pb-20 pt-10' : 'pt-12'}`}>
                 <div className="mx-auto w-full max-w-7xl px-6">
                     {/* Hero Header */}
                     <div className="text-center transition-all duration-700 relative z-40">
-                        <h1 className={`font-bold tracking-tight text-[var(--text-primary)] transition-all duration-700 ${!isInteracted ? 'text-6xl md:text-8xl mb-12 drop-shadow-sm' : 'text-3xl mb-6'}`}>
-                            {t.home.heroTitle}
+                        <h1 className={`font-bold tracking-tight transition-all duration-700 ${!isInteracted ? 'text-5xl md:text-[64px] mb-8 drop-shadow-sm leading-[1.1]' : 'text-[22px] mb-6'}`}>
+                            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-primary)] via-[var(--brand-blue)] to-[var(--brand-purple)]">
+                                {t.home.heroTitle}
+                            </span>
                         </h1>
 
-                        <div className={`relative max-w-2xl mx-auto transition-all duration-1000 z-50 ${!isInteracted ? 'scale-110' : 'scale-100'}`}>
+                        <div className={`relative max-w-2xl mx-auto transition-all duration-1000 z-50 ${!isInteracted ? 'scale-105' : 'scale-100'}`}>
                             <div className="relative group">
                                 <input
                                     type="text"
                                     value={searchQuery}
                                     onFocus={() => setIsInteracted(true)}
                                     onChange={(e) => setSearchQuery(e.target.value)}
+                                    // ... existing keyboard handlers ...
                                     onKeyDown={(e) => {
                                         if (searchResults.length === 0) return;
                                         if (e.key === "ArrowDown") {
@@ -450,9 +455,9 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                                         }
                                     }}
                                     placeholder={t.home.searchPlaceholder}
-                                    className="w-full px-8 py-5 pl-14 rounded-3xl bg-[var(--bg-card)] border-2 border-[var(--neutral-border)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all group-hover:border-[var(--brand-blue)] focus:outline-none focus:ring-4 focus:ring-[var(--brand-blue-muted)] focus:bg-[var(--bg-primary)] text-xl"
+                                    className="w-full px-6 py-4 pl-14 rounded-xl bg-[var(--bg-card)] border border-[var(--neutral-border)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] shadow-sm transition-all group-hover:border-[var(--brand-blue)] group-hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue-soft)] focus:bg-[var(--bg-primary)] text-lg"
                                 />
-                                <span className="absolute left-6 top-5 material-icons-outlined text-[var(--text-secondary)] text-3xl group-focus-within:text-[var(--brand-blue)] transition-colors">search</span>
+                                <span className="absolute left-5 top-1/2 -translate-y-1/2 material-icons-outlined text-[var(--text-secondary)] text-2xl group-focus-within:text-[var(--brand-blue)] transition-colors">search</span>
                             </div>
 
                             {/* Search Results Dropdown */}
@@ -486,14 +491,14 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                     </div>
 
                     {/* Explore Cards Section */}
-                    {isInteracted && !selectedApp && (
+                    {!selectedApp && (
                         <div className="mt-20 animate-in fade-in slide-in-from-bottom-12 duration-1000">
                             <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-8 text-center opacity-60">{t.home.waysToGetStarted}</h2>
                             <div className="flex flex-wrap justify-center gap-8">
                                 {apps
-                                    .filter(app => !isInternal || (internalContentData[app.id]?.moduleIds.size > 0))
+                                    .filter(app => (!isInternal || (internalContentData[app.id]?.moduleIds.size > 0)) && normalize(app.key) !== 'iapp')
                                     .map(app => (
-                                        <div key={app.id} className="group relative w-full sm:w-[380px] rounded-3xl border border-[var(--neutral-border)] bg-[var(--bg-card)] p-8 hover:shadow-[0_30px_60px_rgba(0,0,0,0.12)] hover:border-[var(--brand-blue)] hover:-translate-y-2 transition-all duration-500 text-center flex flex-col">
+                                        <div key={app.id} className="group relative w-full sm:w-[380px] rounded-xl border border-[var(--neutral-border)] bg-[var(--bg-card)] p-8 shadow-sm hover:shadow-xl hover:border-[var(--brand-blue)] hover:-translate-y-1 transition-all duration-500 text-center flex flex-col">
                                             <div className="flex flex-col items-center gap-4 mb-8">
                                                 <div className="flex-shrink-0 w-24 h-16 rounded-2xl bg-white shadow-sm p-3 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
                                                     {!app.iconUrl ? (
@@ -567,18 +572,21 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
 
                             {/* Old Help Site Redirect */}
                             <div className="mt-12 mb-20 text-center animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
-                                <a
-                                    href="https://help.eva.guru/"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                <button
+                                    onClick={() => {
+                                        const newParams = new URLSearchParams(searchParams.toString());
+                                        newParams.set("app", "IAPP");
+                                        router.push(`${baseUrl}?${newParams.toString()}`, { scroll: false });
+                                        setIsInteracted(true);
+                                    }}
                                     className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-[var(--neutral-border)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--brand-blue)] hover:border-[var(--brand-blue)] transition-all duration-300 group"
                                 >
                                     <span className="material-icons-outlined text-lg">history</span>
                                     <span className="text-sm font-medium">
-                                        {language === 'zh' ? '寻找以前的 Eva Help？' : 'Looking for the previous Eva Help?'}
+                                        {language === 'zh' ? '寻找以前的 Eva Help？' : (language === 'tr' ? 'Önceki Eva Help\'e mi bakıyorsunuz?' : 'Looking for the previous Eva Help?')}
                                     </span>
                                     <span className="material-icons-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                                </a>
+                                </button>
                             </div>
                         </div>
                     )}
@@ -588,81 +596,103 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                     {selectedApp && (
                         <div className="mt-12 pb-24 animate-in fade-in duration-500">
                             {/* Breadcrumb */}
-                            <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-10 overflow-x-auto pb-4">
-                                <button onClick={() => router.push(baseUrl)} className="hover:text-[var(--brand-blue)] transition-colors flex items-center gap-1 font-medium">{t.home.breadcrumbHome}</button>
-                                <span className="material-icons-outlined text-xs">chevron_right</span>
+                            <div className="flex items-center gap-1.5 text-[13px] text-[var(--text-secondary)] mb-10 overflow-x-auto pb-4 scrollbar-hide">
+                                <button
+                                    onClick={() => router.push(baseUrl)}
+                                    className="px-2 py-1 rounded-md hover:bg-[var(--neutral-bg-hover)] hover:text-[var(--brand-blue)] transition-all flex items-center gap-1.5 font-medium whitespace-nowrap"
+                                >
+                                    <span className="material-icons-outlined text-base">home</span>
+                                    {t.home.breadcrumbHome}
+                                </button>
+                                <span className="material-icons-outlined text-[10px] opacity-40">chevron_right</span>
+
                                 {selectedModule || selectedTopic ? (
-                                    <button onClick={() => router.push(`${baseUrl}?app=${selectedApp.key}`)} className="hover:text-[var(--brand-blue)] transition-colors font-medium">{selectedApp.name}</button>
+                                    <button
+                                        onClick={() => router.push(`${baseUrl}?app=${selectedApp.key}`)}
+                                        className="px-2 py-1 rounded-md hover:bg-[var(--neutral-bg-hover)] hover:text-[var(--brand-blue)] transition-all font-medium whitespace-nowrap"
+                                    >
+                                        {selectedApp.name}
+                                    </button>
                                 ) : (
-                                    <span className="text-[var(--text-primary)] font-bold">{selectedApp.name}</span>
+                                    <span className="px-2 py-1 font-bold text-[var(--text-primary)] whitespace-nowrap">{selectedApp.name}</span>
                                 )}
 
                                 {selectedModule && (
                                     <>
-                                        <span className="material-icons-outlined text-xs">chevron_right</span>
+                                        <span className="material-icons-outlined text-[10px] opacity-40">chevron_right</span>
                                         {selectedTopic ? (
-                                            <button onClick={() => router.push(`${baseUrl}?app=${selectedApp.key}&module=${selectedModule.key}`)} className="hover:text-[var(--brand-blue)] transition-colors font-medium">{getName(selectedModule)}</button>
+                                            <button
+                                                onClick={() => router.push(`${baseUrl}?app=${selectedApp.key}&module=${selectedModule.key}`)}
+                                                className="px-2 py-1 rounded-md hover:bg-[var(--neutral-bg-hover)] hover:text-[var(--brand-blue)] transition-all font-medium whitespace-nowrap"
+                                            >
+                                                {getName(selectedModule)}
+                                            </button>
                                         ) : (
-                                            <span className="text-[var(--text-primary)] font-bold">{getName(selectedModule)}</span>
+                                            <span className="px-2 py-1 font-bold text-[var(--text-primary)] whitespace-nowrap">{getName(selectedModule)}</span>
                                         )}
                                     </>
                                 )}
 
                                 {selectedTopic && (
                                     <>
-                                        <span className="material-icons-outlined text-xs">chevron_right</span>
-                                        <span className="text-[var(--text-primary)] font-bold">{getName(selectedTopic)}</span>
+                                        <span className="material-icons-outlined text-[10px] opacity-40">chevron_right</span>
+                                        <span className="px-2 py-1 font-bold text-[var(--text-primary)] whitespace-nowrap">{getName(selectedTopic)}</span>
                                     </>
                                 )}
                             </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-12">
                                 {/* Sidebar */}
-                                <aside className="space-y-8">
-                                    <div className="rounded-3xl border border-[var(--neutral-border)] bg-[var(--bg-card)] p-6 space-y-2">
-                                        <div className="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-6 opacity-50 px-3">{t.home.knowledgeModules}</div>
-                                        {modules
-                                            .filter(m => !isInternal || internalContentData[selectedApp.id]?.moduleIds.has(m.id))
-                                            .map(module => (
-                                                <button
-                                                    key={module.id}
-                                                    onClick={() => {
-                                                        router.push(`${baseUrl}?app=${selectedApp.key}&module=${module.key}`);
-                                                    }}
-                                                    className={`w-full text-left rounded-2xl px-5 py-4 flex items-center gap-4 transition-all ${selectedModule?.id === module.id
-                                                        ? 'bg-[var(--brand-blue)] text-white shadow-lg'
-                                                        : 'text-[var(--text-primary)] hover:bg-[var(--neutral-bg)]'}`}
-                                                >
-                                                    {!module.iconUrl ? (
-                                                        <span className="material-icons-outlined text-lg">
-                                                            {module.id === selectedModule?.id ? 'folder_open' : 'folder'}
-                                                        </span>
-                                                    ) : (
-                                                        <>
-                                                            <img
-                                                                src={module.iconUrl}
-                                                                className={`w-5 h-5 object-contain ${selectedModule?.id === module.id
-                                                                    ? 'brightness-0 invert'
-                                                                    : (isSvg(module.iconUrl) ? 'adaptive-icon' : '')
-                                                                    }`}
-                                                                alt=""
-                                                                crossOrigin="anonymous"
-                                                                referrerPolicy="no-referrer"
-                                                                onError={(e) => {
-                                                                    const target = e.currentTarget as HTMLImageElement;
-                                                                    target.style.display = 'none';
-                                                                    const fallback = target.nextElementSibling as HTMLElement;
-                                                                    if (fallback) fallback.style.display = 'block';
-                                                                }}
-                                                            />
-                                                            <span style={{ display: 'none' }} className="material-icons-outlined text-lg">
+                                <aside className="space-y-6">
+                                    <div className="rounded-xl border border-[var(--neutral-border)] bg-[var(--bg-card)] p-4 shadow-sm">
+                                        <div className="flex items-center gap-2 px-3 mb-4">
+                                            <div className="w-1 h-4 rounded-full bg-gradient-to-b from-blue-600 to-indigo-600"></div>
+                                            <div className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] opacity-80">{t.home.knowledgeModules}</div>
+                                        </div>
+                                        <div className="space-y-1">
+                                            {modules
+                                                .filter(m => !isInternal || internalContentData[selectedApp.id]?.moduleIds.has(m.id))
+                                                .map(module => (
+                                                    <button
+                                                        key={module.id}
+                                                        onClick={() => {
+                                                            router.push(`${baseUrl}?app=${selectedApp.key}&module=${module.key}`);
+                                                        }}
+                                                        className={`w-full text-left rounded-lg px-3 py-2.5 flex items-center gap-3 transition-all ${selectedModule?.id === module.id
+                                                            ? 'bg-[var(--brand-blue-soft)] text-[var(--brand-blue)] font-semibold'
+                                                            : 'text-[var(--text-primary)] hover:bg-[var(--neutral-bg-hover)]'}`}
+                                                    >
+                                                        {!module.iconUrl ? (
+                                                            <span className="material-icons-outlined text-lg opacity-70">
                                                                 {module.id === selectedModule?.id ? 'folder_open' : 'folder'}
                                                             </span>
-                                                        </>
-                                                    )}
-                                                    <span className="font-bold text-sm tracking-tight leading-tight">{getName(module)}</span>
-                                                </button>
-                                            ))}
+                                                        ) : (
+                                                            <>
+                                                                <img
+                                                                    src={module.iconUrl}
+                                                                    className={`w-4 h-4 object-contain ${selectedModule?.id === module.id
+                                                                        ? ''
+                                                                        : (isSvg(module.iconUrl) ? 'adaptive-icon' : '')
+                                                                        }`}
+                                                                    alt=""
+                                                                    crossOrigin="anonymous"
+                                                                    referrerPolicy="no-referrer"
+                                                                    onError={(e) => {
+                                                                        const target = e.currentTarget as HTMLImageElement;
+                                                                        target.style.display = 'none';
+                                                                        const fallback = target.nextElementSibling as HTMLElement;
+                                                                        if (fallback) fallback.style.display = 'block';
+                                                                    }}
+                                                                />
+                                                                <span style={{ display: 'none' }} className="material-icons-outlined text-lg">
+                                                                    {module.id === selectedModule?.id ? 'folder_open' : 'folder'}
+                                                                </span>
+                                                            </>
+                                                        )}
+                                                        <span className="text-[13px] trunction">{getName(module)}</span>
+                                                    </button>
+                                                ))}
+                                        </div>
                                     </div>
                                 </aside>
 
@@ -670,13 +700,16 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                                 <main className="min-w-0">
                                     {selectedTopic ? (
                                         <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
-                                            <h2 className="text-4xl font-black text-[var(--text-primary)] mb-4 tracking-tighter">{getName(selectedTopic)}</h2>
-                                            {getDescription(selectedTopic) && <p className="text-lg text-[var(--text-secondary)] mb-10 leading-relaxed max-w-2xl">{getDescription(selectedTopic)}</p>}
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <div className="w-1 h-6 rounded-full bg-gradient-to-b from-blue-600 to-indigo-600"></div>
+                                                <h2 className="text-[22px] font-bold text-[var(--text-primary)] tracking-tight">{getName(selectedTopic)}</h2>
+                                            </div>
+                                            {getDescription(selectedTopic) && <p className="text-[14px] text-[var(--text-secondary)] mb-10 leading-relaxed max-w-2xl">{getDescription(selectedTopic)}</p>}
 
-                                            <div className="grid gap-4">
+                                            <div className="grid gap-3">
                                                 {(() => {
-                                                    const topLevel = topicArticles.filter(a => !a.masterArticleIds?.length);
-                                                    const byMaster = topicArticles.filter(a => a.masterArticleIds?.length).reduce((acc, a) => {
+                                                    const topLevel = topicArticles.filter(a => !a.masterArticleIds?.length || !topicArticles.some(m => m.id === a.masterArticleIds![0]));
+                                                    const byMaster = topicArticles.filter(a => a.masterArticleIds?.length && topicArticles.some(m => m.id === a.masterArticleIds![0])).reduce((acc, a) => {
                                                         const mId = a.masterArticleIds![0];
                                                         acc[mId] = acc[mId] || [];
                                                         acc[mId].push(a);
@@ -685,14 +718,14 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
 
                                                     return topLevel.map(article => (
                                                         <div key={article.id} className="flex flex-col gap-2 relative">
-                                                            <div className="group flex items-center justify-between p-6 rounded-3xl border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] hover:shadow-xl transition-all">
-                                                                <Link href={getArticleUrl(article, 'topic')} className="flex items-center gap-5 flex-1 min-w-0">
-                                                                    <div className="w-12 h-12 rounded-2xl bg-[var(--brand-blue-muted)] flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                                                                        <span className="material-icons-outlined text-[var(--brand-blue)]">{article.articleType === 'Video' ? 'play_circle' : 'article'}</span>
+                                                            <div className="group flex items-center justify-between px-5 py-4 rounded-xl border border-[var(--neutral-border)] bg-[var(--bg-card)] shadow-sm hover:border-[var(--brand-blue)] hover:shadow-md transition-all">
+                                                                <Link href={getArticleUrl(article, 'topic')} className="flex items-center gap-4 flex-1 min-w-0">
+                                                                    <div className="w-10 h-10 rounded-lg bg-[var(--brand-blue-muted)] flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                                                                        <span className="material-icons-outlined text-[var(--brand-blue)] text-xl">{article.articleType === 'Video' ? 'play_circle' : 'article'}</span>
                                                                     </div>
                                                                     <div className="flex-1 min-w-0">
-                                                                        <div className="font-bold text-lg text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors">{article.title}</div>
-                                                                        {article.excerpt && <div className="text-sm text-[var(--text-secondary)] mt-1 line-clamp-1">{article.excerpt}</div>}
+                                                                        <div className="font-semibold text-[15px] text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors line-clamp-1">{article.title}</div>
+                                                                        {article.excerpt && <div className="text-[13px] text-[var(--text-secondary)] mt-0.5 line-clamp-1 opacity-80">{article.excerpt}</div>}
                                                                     </div>
                                                                 </Link>
                                                                 <div className="flex items-center gap-2 pl-4 shrink-0">
@@ -702,32 +735,31 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                                                                                 e.preventDefault();
                                                                                 setExpandedMasters(prev => ({ ...prev, [article.id]: !prev[article.id] }));
                                                                             }}
-                                                                            className="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--neutral-bg)] hover:bg-[var(--brand-blue-muted)] text-[var(--text-secondary)] hover:text-[var(--brand-blue)] transition-all z-10"
+                                                                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-[var(--neutral-bg)] hover:bg-[var(--brand-blue-soft)] text-[var(--text-secondary)] hover:text-[var(--brand-blue)] transition-all z-10"
                                                                             title="Toggle Sub-articles"
                                                                         >
-                                                                            <span className="material-icons-outlined">{expandedMasters[article.id] ? "expand_less" : "expand_more"}</span>
+                                                                            <span className="material-icons-outlined text-lg">{expandedMasters[article.id] ? "expand_less" : "expand_more"}</span>
                                                                         </button>
                                                                     )}
-                                                                    <Link href={getArticleUrl(article, 'topic')} className="w-10 h-10 flex items-center justify-center">
-                                                                        <span className="material-icons-outlined text-[var(--text-secondary)] group-hover:text-[var(--brand-blue)] group-hover:translate-x-1 transition-all">chevron_right</span>
+                                                                    <Link href={getArticleUrl(article, 'topic')} className="w-8 h-8 flex items-center justify-center">
+                                                                        <span className="material-icons-outlined text-[var(--text-secondary)] group-hover:text-[var(--brand-blue)] group-hover:translate-x-1 transition-all text-lg">chevron_right</span>
                                                                     </Link>
                                                                 </div>
                                                             </div>
 
                                                             {expandedMasters[article.id] && byMaster[article.id] && byMaster[article.id].length > 0 && (
-                                                                <div className="ml-8 pl-4 border-l border-[var(--neutral-border)] flex flex-col gap-3 py-2 animate-in slide-in-from-top-2 fade-in duration-300">
+                                                                <div className="ml-10 pl-4 border-l-2 border-[var(--neutral-border)] flex flex-col gap-2 py-1 animate-in slide-in-from-top-2 fade-in duration-300">
                                                                     {byMaster[article.id].map(sub => (
                                                                         <Link
                                                                             key={sub.id}
                                                                             href={getArticleUrl(sub, 'topic')}
-                                                                            className="group flex items-center gap-4 p-4 rounded-2xl border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] hover:shadow-md transition-all relative"
+                                                                            className="group flex items-center gap-3 px-4 py-3 rounded-lg border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] transition-all relative"
                                                                         >
-                                                                            <div className="absolute -left-4 top-1/2 w-4 border-t border-[var(--neutral-border)] group-hover:border-[var(--brand-blue)] transition-colors"></div>
-                                                                            <div className="w-8 h-8 rounded-xl bg-[var(--bg-tertiary)] flex items-center justify-center group-hover:bg-[var(--brand-blue-muted)] transition-colors shrink-0">
-                                                                                <span className="material-icons-outlined text-[var(--text-secondary)] text-sm group-hover:text-[var(--brand-blue)]">subdirectory_arrow_right</span>
+                                                                            <div className="w-6 h-6 rounded bg-[var(--bg-tertiary)] flex items-center justify-center group-hover:bg-[var(--brand-blue-soft)] transition-colors shrink-0">
+                                                                                <span className="material-icons-outlined text-[var(--text-secondary)] text-xs group-hover:text-[var(--brand-blue)]">subdirectory_arrow_right</span>
                                                                             </div>
                                                                             <div className="flex-1 min-w-0">
-                                                                                <div className="font-semibold text-sm text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors truncate">{sub.title}</div>
+                                                                                <div className="font-medium text-[13px] text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors truncate">{sub.title}</div>
                                                                             </div>
                                                                         </Link>
                                                                     ))}
@@ -739,11 +771,12 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                                             </div>
                                         </div>
                                     ) : selectedModule && (
-                                        <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
-                                            <div className="mb-10">
-                                                <h2 className="text-3xl font-black text-[var(--text-primary)] mb-2 tracking-tighter">{getName(selectedModule)}</h2>
-                                                <p className="text-[var(--text-secondary)] leading-relaxed max-w-2xl">{getDescription(selectedModule)}</p>
+                                        <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <div className="w-1 h-6 rounded-full bg-gradient-to-b from-blue-600 to-indigo-600"></div>
+                                                <h2 className="text-[22px] font-bold text-[var(--text-primary)] tracking-tight">{getName(selectedModule)}</h2>
                                             </div>
+                                            <p className="text-[14px] text-[var(--text-secondary)] mb-8 leading-relaxed max-w-2xl">{getDescription(selectedModule)}</p>
 
                                             <div className={topics.length > 0 ? "grid grid-cols-1 sm:grid-cols-2 gap-4" : ""}>
                                                 {loadingTopics ? (
@@ -761,16 +794,16 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                                                                     newParams.set("topic", topic.key);
                                                                     router.push(`${baseUrl}?${newParams.toString()}`);
                                                                 }}
-                                                                className="w-full text-left group flex flex-col p-6 rounded-3xl border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] hover:shadow-xl transition-all h-full"
+                                                                className="w-full text-left group flex flex-col p-5 rounded-xl border border-[var(--neutral-border)] bg-[var(--bg-card)] shadow-sm hover:border-[var(--brand-blue)] hover:shadow-md transition-all h-full"
                                                             >
-                                                                <div className="w-12 h-12 rounded-2xl bg-[var(--brand-blue-muted)] flex items-center justify-center group-hover:scale-110 transition-transform mb-6">
+                                                                <div className="w-10 h-10 rounded-lg bg-[var(--brand-blue-soft)] flex items-center justify-center group-hover:scale-110 transition-transform mb-4">
                                                                     {!topic.iconUrl ? (
-                                                                        <span className="material-icons-outlined text-[var(--brand-blue)] text-2xl">category</span>
+                                                                        <span className="material-icons-outlined text-[var(--brand-blue)] text-xl">category</span>
                                                                     ) : (
                                                                         <>
                                                                             <img
                                                                                 src={topic.iconUrl}
-                                                                                className={`w-7 h-7 object-contain ${isSvg(topic.iconUrl) ? 'adaptive-icon' : ''}`}
+                                                                                className={`w-5 h-5 object-contain ${isSvg(topic.iconUrl) ? 'adaptive-icon' : ''}`}
                                                                                 alt=""
                                                                                 crossOrigin="anonymous"
                                                                                 referrerPolicy="no-referrer"
@@ -781,18 +814,18 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                                                                                     if (fallback) fallback.style.display = 'block';
                                                                                 }}
                                                                             />
-                                                                            <span style={{ display: 'none' }} className="material-icons-outlined text-[var(--brand-blue)] text-2xl">category</span>
+                                                                            <span style={{ display: 'none' }} className="material-icons-outlined text-[var(--brand-blue)] text-xl">category</span>
                                                                         </>
                                                                     )}
                                                                 </div>
                                                                 <div className="flex-1">
-                                                                    <h3 className="text-lg font-bold text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors line-clamp-1">{getName(topic)}</h3>
+                                                                    <h3 className="text-[15px] font-bold text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors line-clamp-1">{getName(topic)}</h3>
                                                                     {getDescription(topic) && (
-                                                                        <p className="text-sm text-[var(--text-secondary)] mt-2 line-clamp-2 leading-relaxed">{getDescription(topic)}</p>
+                                                                        <p className="text-[13px] text-[var(--text-secondary)] mt-1.5 line-clamp-2 leading-relaxed opacity-80">{getDescription(topic)}</p>
                                                                     )}
                                                                 </div>
-                                                                <div className="mt-6 flex items-center gap-2 text-[var(--brand-blue)]">
-                                                                    <span className="text-[10px] font-black uppercase tracking-widest">{t.home.exploreTopics}</span>
+                                                                <div className="mt-4 flex items-center gap-2 text-[var(--brand-blue)] opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                    <span className="text-[11px] font-bold uppercase tracking-wider">{t.home.exploreTopics}</span>
                                                                     <span className="material-icons-outlined text-sm group-hover:translate-x-1 transition-transform">east</span>
                                                                 </div>
                                                             </button>
@@ -801,18 +834,18 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                                             </div>
 
                                             {allModuleArticles.length > 0 && (
-                                                <div className="mt-16 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
-                                                    <div className="mb-8 p-4 bg-[var(--brand-blue-muted)] rounded-2xl border border-[var(--brand-blue-muted)] inline-flex items-center gap-3">
-                                                        <span className="material-icons-outlined text-[var(--brand-blue)]">auto_stories</span>
-                                                        <h3 className="text-sm font-black uppercase tracking-widest text-[var(--brand-blue)]">
+                                                <div className="mt-16 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
+                                                    <div className="mb-6 flex items-center gap-3">
+                                                        <div className="w-1 h-4 rounded-full bg-[var(--brand-blue)]"></div>
+                                                        <h3 className="text-[11px] font-bold uppercase tracking-wider text-[var(--brand-blue)]">
                                                             {t.home.allArticlesInModule.replace("{module}", getName(selectedModule))}
                                                         </h3>
                                                     </div>
 
-                                                    <div className="grid gap-3">
+                                                    <div className="grid gap-2">
                                                         {(() => {
-                                                            const topLevel = allModuleArticles.filter(a => !a.masterArticleIds?.length);
-                                                            const byMaster = allModuleArticles.filter(a => a.masterArticleIds?.length).reduce((acc, a) => {
+                                                            const topLevel = allModuleArticles.filter(a => !a.masterArticleIds?.length || !allModuleArticles.some(m => m.id === a.masterArticleIds![0]));
+                                                            const byMaster = allModuleArticles.filter(a => a.masterArticleIds?.length && allModuleArticles.some(m => m.id === a.masterArticleIds![0])).reduce((acc, a) => {
                                                                 const mId = a.masterArticleIds![0];
                                                                 acc[mId] = acc[mId] || [];
                                                                 acc[mId].push(a);
@@ -820,15 +853,14 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                                                             }, {} as Record<string, typeof allModuleArticles>);
 
                                                             return topLevel.map(article => (
-                                                                <div key={article.id} className="flex flex-col gap-2 relative">
-                                                                    <div className="group flex items-center justify-between p-5 rounded-2xl border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] hover:shadow-lg transition-all">
+                                                                <div key={article.id} className="flex flex-col gap-1 relative">
+                                                                    <div className="group flex items-center justify-between px-4 py-3 rounded-lg border border-[var(--neutral-border)] bg-[var(--bg-card)] shadow-sm hover:border-[var(--brand-blue)] transition-all">
                                                                         <Link href={getArticleUrl(article, 'module')} className="flex items-center gap-4 flex-1 min-w-0">
-                                                                            <div className="w-10 h-10 rounded-xl bg-[var(--bg-tertiary)] flex items-center justify-center group-hover:bg-[var(--brand-blue-muted)] transition-colors shrink-0">
-                                                                                <span className="material-icons-outlined text-[var(--text-muted)] group-hover:text-[var(--brand-blue)] text-sm">{article.articleType === 'Video' ? 'play_circle' : 'description'}</span>
+                                                                            <div className="w-8 h-8 rounded-lg bg-[var(--brand-blue-soft)] flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                                                                                <span className="material-icons-outlined text-[var(--brand-blue)] text-lg">{article.articleType === 'Video' ? 'play_circle' : 'article'}</span>
                                                                             </div>
                                                                             <div className="flex-1 min-w-0">
-                                                                                <div className="font-bold text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors">{article.title}</div>
-                                                                                {article.excerpt && <div className="text-xs text-[var(--text-secondary)] mt-0.5 line-clamp-1">{article.excerpt}</div>}
+                                                                                <div className="font-semibold text-[14px] text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors line-clamp-1">{article.title}</div>
                                                                             </div>
                                                                         </Link>
                                                                         <div className="flex items-center gap-2 pl-4 shrink-0">
@@ -838,32 +870,31 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                                                                                         e.preventDefault();
                                                                                         setExpandedMasters(prev => ({ ...prev, [article.id]: !prev[article.id] }));
                                                                                     }}
-                                                                                    className="w-8 h-8 flex items-center justify-center rounded-full bg-[var(--neutral-bg)] hover:bg-[var(--brand-blue-muted)] text-[var(--text-secondary)] hover:text-[var(--brand-blue)] transition-all z-10"
+                                                                                    className="w-7 h-7 flex items-center justify-center rounded-lg bg-[var(--neutral-bg)] hover:bg-[var(--brand-blue-soft)] text-[var(--text-secondary)] hover:text-[var(--brand-blue)] transition-all z-10"
                                                                                     title="Toggle Sub-articles"
                                                                                 >
-                                                                                    <span className="material-icons-outlined text-sm">{expandedMasters[article.id] ? "expand_less" : "expand_more"}</span>
+                                                                                    <span className="material-icons-outlined text-base">{expandedMasters[article.id] ? "expand_less" : "expand_more"}</span>
                                                                                 </button>
                                                                             )}
-                                                                            <Link href={getArticleUrl(article, 'module')} className="w-8 h-8 flex items-center justify-center">
-                                                                                <span className="material-icons-outlined text-[var(--text-muted)] group-hover:text-[var(--brand-blue)] group-hover:translate-x-1 transition-all text-sm">east</span>
+                                                                            <Link href={getArticleUrl(article, 'module')} className="w-7 h-7 flex items-center justify-center">
+                                                                                <span className="material-icons-outlined text-[var(--text-secondary)] group-hover:text-[var(--brand-blue)] group-hover:translate-x-1 transition-all text-base">chevron_right</span>
                                                                             </Link>
                                                                         </div>
                                                                     </div>
 
                                                                     {expandedMasters[article.id] && byMaster[article.id] && byMaster[article.id].length > 0 && (
-                                                                        <div className="ml-6 pl-4 border-l border-[var(--neutral-border)] flex flex-col gap-2 py-1 animate-in slide-in-from-top-2 fade-in duration-300">
+                                                                        <div className="ml-8 pl-4 border-l-2 border-[var(--neutral-border)] flex flex-col gap-2 py-1 animate-in slide-in-from-top-2 fade-in duration-300">
                                                                             {byMaster[article.id].map(sub => (
                                                                                 <Link
                                                                                     key={sub.id}
                                                                                     href={getArticleUrl(sub, 'module')}
-                                                                                    className="group flex items-center gap-3 p-3 rounded-xl border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] hover:shadow-md transition-all relative"
+                                                                                    className="group flex items-center gap-3 px-4 py-3 rounded-lg border border-[var(--neutral-border)] bg-[var(--bg-card)] hover:border-[var(--brand-blue)] transition-all relative"
                                                                                 >
-                                                                                    <div className="absolute -left-4 top-1/2 w-4 border-t border-[var(--neutral-border)] group-hover:border-[var(--brand-blue)] transition-colors"></div>
-                                                                                    <div className="w-8 h-8 rounded-lg bg-[var(--bg-tertiary)] flex items-center justify-center group-hover:bg-[var(--brand-blue-muted)] transition-colors shrink-0">
+                                                                                    <div className="w-6 h-6 rounded bg-[var(--bg-tertiary)] flex items-center justify-center group-hover:bg-[var(--brand-blue-soft)] transition-colors shrink-0">
                                                                                         <span className="material-icons-outlined text-[var(--text-secondary)] text-xs group-hover:text-[var(--brand-blue)]">subdirectory_arrow_right</span>
                                                                                     </div>
                                                                                     <div className="flex-1 min-w-0">
-                                                                                        <div className="font-semibold text-xs text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors truncate">{sub.title}</div>
+                                                                                        <div className="font-medium text-[13px] text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors truncate">{sub.title}</div>
                                                                                     </div>
                                                                                 </Link>
                                                                             ))}

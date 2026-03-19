@@ -15,18 +15,20 @@ const REL_TOPICS_ON_ARTICLES = "Help Center Topics";
  * The error confirmed the property is of type 'select'.
  */
 function getLanguageFilter(language: string) {
-    // If language is provided, we filter by it. 
-    // We try both lowercase and uppercase as select options are case-sensitive.
-    return {
-        or: [
-            { property: "Language", select: { equals: language } },
-            { property: "Language", select: { equals: language.toUpperCase() } },
-        ]
-    };
+    // Normalize language to uppercase as per common Notion DB options (EN, TR, ZH).
+    // Notion select filters are case-sensitive and must match an existing option.
+    return { property: "Language", select: { equals: language.toUpperCase() } };
 }
 
 function getVisibilityFilter(visibility: string) {
-    return { property: "Visibility", select: { equals: visibility } };
+    // Standardize to Notion DB options (Public, Internal Only).
+    // If lowercase 'public' or 'internal' provided, fix it to match common patterns.
+    let val = visibility;
+    const low = visibility.toLowerCase();
+    if (low === "public") val = "Public";
+    else if (low === "internal only" || low === "internal") val = "Internal Only";
+    
+    return { property: "Visibility", select: { equals: val } };
 }
 
 export async function listArticlesByTopicId(topicId: string, language?: string, visibility: string = "Public"): Promise<HelpCenterArticle[]> {
@@ -43,16 +45,28 @@ export async function listArticlesByTopicId(topicId: string, language?: string, 
         filters.push(getLanguageFilter(language));
     }
 
-    const res = await notion.databases.query({
-        database_id: NOTION_ARTICLES_DB_ID,
-        filter: { and: filters },
-        sorts: [
-            { property: "Order", direction: "ascending" },
-            { property: "Last Reviewed", direction: "descending" },
-        ],
-    });
+    const allResults: any[] = [];
+    let cursor: string | undefined = undefined;
 
-    return res.results.map((page: any) => {
+    while (true) {
+        const res = await notion.databases.query({
+            database_id: NOTION_ARTICLES_DB_ID,
+            start_cursor: cursor,
+            page_size: 100,
+            filter: { and: filters },
+            sorts: [
+                { property: "Order", direction: "ascending" },
+                { property: "Last Reviewed", direction: "descending" },
+            ],
+        });
+
+        allResults.push(...res.results);
+
+        if (!res.has_more) break;
+        cursor = res.next_cursor ?? undefined;
+    }
+
+    return allResults.map((page: any) => {
         const p = page.properties || {};
         return {
             id: page.id,
@@ -88,16 +102,28 @@ export async function listArticlesByModuleId(moduleId: string, language?: string
         filters.push(getLanguageFilter(language));
     }
 
-    const res = await notion.databases.query({
-        database_id: NOTION_ARTICLES_DB_ID,
-        filter: { and: filters },
-        sorts: [
-            { property: "Order", direction: "ascending" },
-            { property: "Last Reviewed", direction: "descending" },
-        ],
-    });
+    const allResults: any[] = [];
+    let cursor: string | undefined = undefined;
 
-    return res.results.map((page: any) => {
+    while (true) {
+        const res = await notion.databases.query({
+            database_id: NOTION_ARTICLES_DB_ID,
+            start_cursor: cursor,
+            page_size: 100,
+            filter: { and: filters },
+            sorts: [
+                { property: "Order", direction: "ascending" },
+                { property: "Last Reviewed", direction: "descending" },
+            ],
+        });
+
+        allResults.push(...res.results);
+
+        if (!res.has_more) break;
+        cursor = res.next_cursor ?? undefined;
+    }
+
+    return allResults.map((page: any) => {
         const p = page.properties || {};
         return {
             id: page.id,
@@ -183,16 +209,28 @@ export async function listArticlesByAppId(appId: string, language?: string, visi
         filters.push(getLanguageFilter(language));
     }
 
-    const res = await notion.databases.query({
-        database_id: NOTION_ARTICLES_DB_ID,
-        filter: { and: filters },
-        sorts: [
-            { property: "Order", direction: "ascending" },
-            { property: "Last Reviewed", direction: "descending" },
-        ],
-    });
+    const allResults: any[] = [];
+    let cursor: string | undefined = undefined;
 
-    return res.results.map((page: any) => {
+    while (true) {
+        const res = await notion.databases.query({
+            database_id: NOTION_ARTICLES_DB_ID,
+            start_cursor: cursor,
+            page_size: 100,
+            filter: { and: filters },
+            sorts: [
+                { property: "Order", direction: "ascending" },
+                { property: "Last Reviewed", direction: "descending" },
+            ],
+        });
+
+        allResults.push(...res.results);
+
+        if (!res.has_more) break;
+        cursor = res.next_cursor ?? undefined;
+    }
+
+    return allResults.map((page: any) => {
         const p = page.properties || {};
         return {
             id: page.id,

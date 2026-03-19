@@ -40,7 +40,10 @@ export async function ArticlePageContent({ slug, searchParams, visibility }: Art
         const safeSlug = normalize(slug);
 
         const a = articles.find((x) => normalize(x.slug) === safeSlug);
-        if (!a) return notFound();
+
+        if (!a) {
+            return notFound();
+        }
 
         const blocks = await fetchAllBlocks(a.id);
         const n2m = new NotionToMarkdown({ notionClient: notion });

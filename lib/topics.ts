@@ -10,6 +10,10 @@ const REL_MODULES_ON_TOPICS = "Help Center Modules";
 export async function listTopicsByAppAndModule(appId: string, moduleId: string, visibility: string = "Public"): Promise<HelpCenterTopic[]> {
     if (!NOTION_TOPICS_DB_ID) throw new Error("NOTION_TOPICS_DB_ID is missing");
     if (!appId || !moduleId) return [];
+    
+    // Normalize visibility
+    const low = visibility.toLowerCase();
+    const normalizedVisibility = low === "public" ? "Public" : (low === "internal only" || low === "internal" ? "Internal Only" : visibility);
 
     let res;
     try {
@@ -18,7 +22,7 @@ export async function listTopicsByAppAndModule(appId: string, moduleId: string, 
             filter: {
                 and: [
                     { property: "Status", select: { equals: "Active" } },
-                    { property: "Visibility", select: { equals: visibility } },
+                    { property: "Visibility", select: { equals: normalizedVisibility } },
                     { property: REL_APP_ON_TOPICS, relation: { contains: appId } },
                     { property: REL_MODULES_ON_TOPICS, relation: { contains: moduleId } },
                 ],

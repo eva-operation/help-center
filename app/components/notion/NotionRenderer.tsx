@@ -250,7 +250,7 @@ const CalloutBlock = ({ block, children, allArticles }: { block: any, children?:
         iconEl = <span className="text-xl select-none">{icon.emoji}</span>;
     } else if (icon?.type === 'external' || icon?.type === 'file') {
         const url = icon.type === 'external' ? icon.external.url : icon.file.url;
-        iconEl = <img src={url} alt="Icon" className="w-5 h-5 mt-0.5 object-contain select-none" loading="lazy" crossOrigin="anonymous" referrerPolicy="no-referrer" />;
+        iconEl = <img src={url} alt="Icon" className="w-5 h-5 mt-0.5 object-contain select-none" loading="lazy" />;
     }
 
     return (
@@ -313,8 +313,6 @@ const ImageBlock = ({ block, allArticles }: { block: any, allArticles?: HelpCent
                 alt="Notion Image"
                 className="rounded-lg border border-[var(--neutral-border)] w-full h-auto max-h-[600px] object-contain bg-[var(--bg-tertiary)]"
                 loading="lazy"
-                crossOrigin="anonymous"
-                referrerPolicy="no-referrer"
             />
             {caption && (
                 <figcaption className="mt-2 text-center text-sm text-[var(--text-muted)] italic">

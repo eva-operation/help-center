@@ -9,6 +9,10 @@ const REL_APPS_ON_MODULES = "Help Center Apps";
 export async function listModulesByAppId(appId: string, visibility: string = "Public"): Promise<HelpCenterModule[]> {
     if (!NOTION_MODULES_DB_ID) throw new Error("NOTION_MODULES_DB_ID is missing");
     if (!appId) return [];
+    
+    // Normalize visibility
+    const low = visibility.toLowerCase();
+    const normalizedVisibility = low === "public" ? "Public" : (low === "internal only" || low === "internal" ? "Internal Only" : visibility);
 
     let res;
     try {
@@ -17,7 +21,7 @@ export async function listModulesByAppId(appId: string, visibility: string = "Pu
             filter: {
                 and: [
                     { property: "Status", select: { equals: "Active" } },
-                    { property: "Visibility", select: { equals: visibility } },
+                    { property: "Visibility", select: { equals: normalizedVisibility } },
                     { property: REL_APPS_ON_MODULES, relation: { contains: appId } },
                 ],
             },

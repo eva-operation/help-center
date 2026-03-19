@@ -19,15 +19,19 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     const [language, setLanguageState] = useState<Language>('en');
 
     useEffect(() => {
-        const savedLang = localStorage.getItem('language') as Language;
-        if (savedLang && translations[savedLang]) {
-            setLanguageState(savedLang);
-        } else {
-            // Try to detect browser language
-            const browserLang = navigator.language.split('-')[0] as Language;
-            if (translations[browserLang]) {
-                setLanguageState(browserLang);
+        const savedLang = localStorage.getItem('language');
+        if (savedLang) {
+            const normalized = savedLang.toLowerCase() as Language;
+            if (translations[normalized]) {
+                setLanguageState(normalized);
+                return;
             }
+        }
+        
+        // Try to detect browser language
+        const browserLang = navigator.language.split('-')[0].toLowerCase() as Language;
+        if (translations[browserLang]) {
+            setLanguageState(browserLang);
         }
     }, []);
 

@@ -16,6 +16,7 @@ export default function Header() {
 
     const languages: { key: Language; label: string; code: string }[] = [
         { key: "en", label: "English", code: "EN" },
+        { key: "tr", label: "Türkçe", code: "TR" },
         { key: "zh", label: "中文", code: "ZH" },
     ];
 
@@ -90,12 +91,12 @@ export default function Header() {
                             </div>
 
                             <ThemeToggle />
-                            <Link href="/contact" className="text-sm text-[var(--text-primary)] hover:text-[var(--brand-blue)]">
+                            <a href="https://eva.guru/grow-my-brand-now/" target="_blank" rel="noopener noreferrer" className="text-sm text-[var(--text-primary)] hover:text-[var(--brand-blue)]">
                                 {t.header.contactUs}
-                            </Link>
-                            <Link href="/signup" className="ml-2 inline-block bg-[var(--brand-blue)] text-white text-sm px-3 py-1.5 rounded-md hover:opacity-95">
+                            </a>
+                            <a href="https://auth.eva.guru" target="_blank" rel="noopener noreferrer" className="ml-2 inline-block bg-[var(--brand-blue)] text-white text-sm px-3 py-1.5 rounded-md hover:opacity-95">
                                 {t.header.signUp}
-                            </Link>
+                            </a>
                         </>
                     )}
                 </div>

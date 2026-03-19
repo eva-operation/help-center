@@ -56,25 +56,42 @@ function getRequiredProps(page: any) {
 }
 
 function getVisibilityFilter(visibility: string) {
-    return { property: "Visibility", select: { equals: visibility } };
+    // Standardize to Notion DB options (Public, Internal Only).
+    // If lowercase 'public' or 'internal' provided, fix it to match common patterns.
+    let val = visibility;
+    const low = visibility.toLowerCase();
+    if (low === "public") val = "Public";
+    else if (low === "internal only" || low === "internal") val = "Internal Only";
+    
+    return { property: "Visibility", select: { equals: val } };
 }
 
 export async function listPublishedArticles(visibility: string = "Public"): Promise<Article[]> {
     if (!NOTION_ARTICLES_DB_ID) throw new Error("NOTION_ARTICLES_DB_ID is missing");
 
-    const res = await notion.databases.query({
-        database_id: NOTION_ARTICLES_DB_ID,
-        filter: {
-            and: [
-                { property: "Status", select: { equals: "Published" } },
-                getVisibilityFilter(visibility),
-            ],
-        },
-        // NOTE: Do not use sorts unless you're 100% sure the property exists in the DB.
-        // We'll sort locally in nav/tree.
-    });
+    const allResults: any[] = [];
+    let cursor: string | undefined = undefined;
 
-    return res.results
+    while (true) {
+        const res = await notion.databases.query({
+            database_id: NOTION_ARTICLES_DB_ID,
+            start_cursor: cursor,
+            page_size: 100,
+            filter: {
+                and: [
+                    { property: "Status", select: { equals: "Published" } },
+                    getVisibilityFilter(visibility),
+                ],
+            },
+        });
+
+        allResults.push(...res.results);
+
+        if (!res.has_more) break;
+        cursor = res.next_cursor ?? undefined;
+    }
+
+    return allResults
         .map((page: any) => {
             const x = getRequiredProps(page);
             return {

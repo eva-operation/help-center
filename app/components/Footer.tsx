@@ -76,6 +76,12 @@ export default function Footer() {
                                 EN
                             </button>
                             <button
+                                className={`text-sm ${language === 'tr' ? 'text-[var(--brand-blue)] font-bold' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors'}`}
+                                onClick={() => setLanguage('tr')}
+                            >
+                                TR
+                            </button>
+                            <button
                                 className={`text-sm ${language === 'zh' ? 'text-[var(--brand-blue)] font-bold' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors'}`}
                                 onClick={() => setLanguage('zh')}
                             >
