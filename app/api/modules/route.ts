@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { listModulesByAppId } from "../../../lib/modules";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const appId = searchParams.get("appId");

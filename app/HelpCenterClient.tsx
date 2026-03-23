@@ -47,14 +47,12 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
     const getDescription = (item: HelpCenterApp | HelpCenterModule | HelpCenterTopic | null) => {
         if (!item) return "";
         if (language === 'zh') return item.descriptionZH || item.description;
-        if (language === 'tr') return item.descriptionTR || item.description;
         return item.description;
     };
 
     const getName = (item: HelpCenterApp | HelpCenterModule | HelpCenterTopic | null) => {
         if (!item) return "";
         if (language === 'zh' && 'nameZH' in item) return item.nameZH || item.name;
-        if (language === 'tr' && 'nameTR' in item) return item.nameTR || item.name;
         return item.name;
     };
 
@@ -532,8 +530,8 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                                                             <div className="h-4 w-3/4 bg-[var(--neutral-bg)] animate-pulse rounded"></div>
                                                             <div className="h-4 w-1/2 bg-[var(--neutral-bg)] animate-pulse rounded"></div>
                                                         </div>
-                                                    ) : isInternal ? (
-                                                        // Internal view shows modules in explorer box
+                                                    ) : (
+                                                        // Show modules in explorer box for both views
                                                         exploreData[app.id]?.modules?.map(module => (
                                                             <Link
                                                                 key={module.id}
@@ -542,18 +540,6 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                                                             >
                                                                 <span className="material-icons-outlined text-sm opacity-0 -ml-4 group-hover/item:opacity-100 group-hover/item:ml-0 transition-all duration-300">east</span>
                                                                 <span className="font-medium">{getName(module)}</span>
-                                                            </Link>
-                                                        ))
-                                                    ) : (
-                                                        // Public view shows topics of first module
-                                                        exploreData[app.id]?.topics.map(topic => (
-                                                            <Link
-                                                                key={topic.id}
-                                                                href={`${baseUrl}?app=${app.key}&module=${exploreData[app.id].moduleKey}&topic=${topic.key}`}
-                                                                className="block group/item flex items-center gap-3 py-2 text-[var(--text-secondary)] hover:text-[var(--brand-blue)] transition-colors"
-                                                            >
-                                                                <span className="material-icons-outlined text-sm opacity-0 -ml-4 group-hover/item:opacity-100 group-hover/item:ml-0 transition-all duration-300">east</span>
-                                                                <span className="font-medium">{getName(topic)}</span>
                                                             </Link>
                                                         ))
                                                     )}
@@ -583,7 +569,7 @@ export function HelpCenterClient({ apps, isInternal = false }: Props) {
                                 >
                                     <span className="material-icons-outlined text-lg">history</span>
                                     <span className="text-sm font-medium">
-                                        {language === 'zh' ? '寻找以前的 Eva Help？' : (language === 'tr' ? 'Önceki Eva Help\'e mi bakıyorsunuz?' : 'Looking for the previous Eva Help?')}
+                                        {language === 'zh' ? '寻找以前的 Eva Help？' : 'Looking for the previous Eva Help?'}
                                     </span>
                                     <span className="material-icons-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
                                 </button>
