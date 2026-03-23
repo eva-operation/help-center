@@ -14,20 +14,27 @@ export default function Footer() {
                     {/* Brand Column */}
                     <div className="col-span-1 md:col-span-1">
                         <div className="mb-6">
-                            <a href="https://eva.guru" className="flex items-center gap-3 group">
+                            <a href="https://eva.guru/" className="flex items-center gap-3 group">
                                 <img
                                     src="https://orchid-hexagon-821.notion.site/image/attachment%3Aab2c4f67-54b6-47d6-8b58-b6dc4cf09dcf%3Aeva_logo_gradient_for_dark_bg_use_medium.png?table=block&id=301505ff-3c1f-8051-849f-cd82e81f5edb&spaceId=0c8505ff-3c1f-81ec-a609-00038f16f0ac&width=1420&userId=&cache=v2"
                                     alt="Eva Logo"
                                     className="h-7 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity"
                                 />
-                                <span className="text-lg font-bold tracking-tight text-[var(--text-primary)]">
-                                    <span className="text-[var(--brand-blue)]">Intelligence</span>
+                                <span className="text-lg font-bold tracking-tight">
+                                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-primary)] via-[var(--brand-blue)] to-[var(--brand-purple)]">guru</span>
                                 </span>
                             </a>
                         </div>
-                        <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                            {t.footer.description}
-                        </p>
+                        <a 
+                            href="https://eva.guru/" 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="text-sm text-[var(--text-secondary)] leading-relaxed hover:text-[var(--brand-blue)] transition-colors block"
+                        >
+                            Eva Commerce, Inc.<br />
+                            5770 Aster Meadows PL<br />
+                            San Diego CA 92130
+                        </a>
                     </div>
 
                     {/* Resources */}

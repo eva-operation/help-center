@@ -22,16 +22,16 @@ export default function Header() {
     return (
         <header className="sticky top-0 z-50 w-full border-b border-[var(--neutral-border)] bg-[var(--bg-secondary)]">
             <div className="mx-auto max-w-7xl px-6 py-3 flex items-center justify-between">
-                <a href="https://eva.guru" className="flex items-center gap-3 group">
+                <Link href="/" className="flex items-center gap-3 group">
                     <img
                         src="https://orchid-hexagon-821.notion.site/image/attachment%3Aab2c4f67-54b6-47d6-8b58-b6dc4cf09dcf%3Aeva_logo_gradient_for_dark_bg_use_medium.png?table=block&id=301505ff-3c1f-8051-849f-cd82e81f5edb&spaceId=0c8505ff-3c1f-81ec-a609-00038f16f0ac&width=1420&userId=&cache=v2"
                         alt="Eva Logo"
                         className="h-8 w-auto object-contain transition-transform group-hover:scale-105 flex-shrink-0"
                     />
-                    <span className="text-xl font-bold tracking-tight text-[var(--text-primary)] break-words max-w-[200px] sm:max-w-none hidden sm:inline">
-                        <span className="text-[var(--brand-blue)]">E-Commerce Intelligence</span>
+                    <span className="text-xl font-bold tracking-tight break-words max-w-[200px] sm:max-w-none hidden sm:inline">
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-primary)] via-[var(--brand-blue)] to-[var(--brand-purple)]">Intelligence Hub</span>
                     </span>
-                </a>
+                </Link>
 
                 <div className="flex items-center gap-4">
                     {/* Badge for Internal view */}
